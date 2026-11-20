@@ -145,7 +145,8 @@ export function TMDBDocumentaries() {
 
 
 type PersonData={id:number;name:string;biography?:string;profile_path:string|null;known_for_department?:string;birthday?:string|null;place_of_birth?:string|null};
-type PersonCredits={cast?:{id:number;title?:string;name?:string;character?:string;release_date?:string;poster_path:string|null}[];crew?:{id:number;title?:string;name?:string;job?:string;release_date?:string;poster_path:string|null}[]};
+type PersonWork={id:number;title?:string;name?:string;character?:string;job?:string;release_date?:string;poster_path:string|null};
+type PersonCredits={cast?:PersonWork[];crew?:PersonWork[]};
 export function PersonDetail(){
  const {id}=useParams();const [person,setPerson]=useState<PersonData|null>(null);const [credits,setCredits]=useState<PersonCredits>({});const [error,setError]=useState('');
  useSeo(person?person.name+' — actor profile and filmography':'Actor profile',person?'Explore '+person.name+', biography and movies or series.':'Actor and filmmaker profile and filmography.');
