@@ -48,6 +48,30 @@ Copy `.env.example` to `.env` for local use. Every `VITE_*` variable is bundled 
 
 Add objects to `public/data/releases.json` only after rights are verified. Every entry must include the licence name, HTTPS licence URL and HTTPS authorised download URL. Never fabricate download availability or file sizes.
 
+## Movie download catalogue
+
+Movie discovery uses TMDB for metadata; download files are hosted externally and are never copied into the site repository. To list a movie file, add an entry to `public/data/movie-downloads.json`:
+
+```json
+{
+  "movies": [
+    {
+      "movieId": 12345,
+      "title": "Example title",
+      "year": "2025",
+      "rightsVerified": true,
+      "rightsNote": "Public-domain release / written permission from the rights holder.",
+      "sources": [
+        { "label": "TeraBox", "url": "https://your-authorised-file-host.example/file" },
+        { "label": "Archive", "url": "https://your-authorised-file-host.example/another-file" }
+      ]
+    }
+  ]
+}
+```
+
+Use the movie's TMDB numeric ID for `movieId`. Only add HTTPS links that the rights holder has authorised or that are covered by the stated public-domain/licence status. Set `rightsVerified` to `true` only after checking the rights. Entries without verified rights and valid HTTPS sources are not shown. Movie listing cards and detail pages show a Download action when a verified source exists; otherwise the button responds that the file has not been added. The `/downloads` page lists only movies with verified links.
+
 ## Deployment
 
 The production site is hosted on Cloudflare Pages. Follow the existing repository workflow and project settings when deploying. Keep API credentials in server-side Cloudflare secrets, never in frontend environment variables or committed files.
