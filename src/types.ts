@@ -1,4 +1,4 @@
-export type Category = 'music' | 'movie' | 'independent' | 'documentary';
+export type Category = 'music' | 'movie' | 'independent' | 'documentary' | 'adult';
 
 export interface Release {
   id: string;
