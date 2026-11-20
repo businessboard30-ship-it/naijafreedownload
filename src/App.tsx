@@ -3,7 +3,7 @@ import AppLayout from './layouts/AppLayout';
 import { CatalogueProvider } from './lib/CatalogueContext';
 import Overview from './pages/Overview';
 import CatalogueView from './pages/CatalogueView';
-import { TMDBMovies, TMDBMovieDetail, TMDBDocumentaries, PersonDetail } from './pages/TMDBMovies';
+import { TMDBMovies, TMDBMovieDetail, TMDBDocumentaries, PersonDetail, MovieCharacterDetail } from './pages/TMDBMovies';
 import AnimePage, { AnimeDetail, AnimeCharacterDetail } from './pages/Anime';
 import Music from './pages/Music';
 import GlobalSearch from './pages/GlobalSearch';
@@ -18,6 +18,7 @@ export default function App() {
           <Route path="music" element={<Music />} />
           <Route path="movies" element={<TMDBMovies />} />
           <Route path="movies/:id" element={<TMDBMovieDetail />} />
+          <Route path="movie-character/:movieId/:personId" element={<MovieCharacterDetail />} />
           <Route path="anime" element={<AnimePage />} />
           <Route path="anime/:id" element={<AnimeDetail />} />
           <Route path="anime-character/:id" element={<AnimeCharacterDetail />} />
