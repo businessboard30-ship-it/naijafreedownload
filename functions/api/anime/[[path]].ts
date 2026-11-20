@@ -1,4 +1,4 @@
-const ALLOWED = [/^seasons\/(now|upcoming)$/, /^top\/anime$/, /^anime$/, /^anime\/[0-9]+\/(full|characters)$/, /^characters\/[0-9]+\/full$/];
+const ALLOWED = [/^seasons\/(now|upcoming)$/, /^top\/anime$/, /^anime$/, /^anime\/[0-9]+\/(full|characters)$/, /^characters$/, /^characters\/[0-9]+\/full$/];
 
 export async function onRequest({ request }: { request: Request }) {
   const incoming = new URL(request.url);
