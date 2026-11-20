@@ -55,14 +55,54 @@ export function TMDBMovieDetail() {
   const [movie,setMovie] = useState<Movie|null>(null);
   const [credits,setCredits] = useState<{cast?:{id:number;name:string;character:string;profile_path:string|null}[];crew?:{job:string;name:string}[]}>({});
   const [error,setError] = useState('');
-  useSeo('Movie details','Movie information and cast from the worldwide TMDB catalogue.');
+  useSeo(movie ? `${movie.title} (${movie.release_date?.slice(0,4) || 'Movie'}) — details & download availability` : 'Movie details', movie ? `Explore ${movie.title}, its synopsis, cast, release information and legitimate download availability on NaijaFreeDownload.` : 'Movie information, cast and legitimate download availability from the worldwide movie catalogue.');
   useEffect(()=>{const ctrl=new AbortController();Promise.all([fetch('/api/tmdb/movie/'+id,{signal:ctrl.signal}),fetch('/api/tmdb/movie/'+id+'/credits',{signal:ctrl.signal})]).then(async ([a,b])=>{if(!a.ok||!b.ok)throw new Error('Could not load movie details.');return Promise.all([a.json(),b.json()]);}).then(([m,c])=>{setMovie(m);setCredits(c);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>ctrl.abort();},[id]);
+
+  useEffect(() => {
+    if (!movie) return;
+    const year = movie.release_date?.slice(0,4);
+    const title = `${movie.title}${year ? ` (${year})` : ''} — movie details | NaijaFreeDownload`;
+    const description = `Find ${movie.title}${year ? ` (${year})` : ''} movie details, synopsis, cast, release information and legal free download availability. Check whether an authorised download is available on NaijaFreeDownload.`.slice(0,300);
+    const keywords = [movie.title, `${movie.title} movie`, `${movie.title} free download`, `${movie.title} movie download`, `download ${movie.title}`, `${movie.title} watch online`, `${movie.title} cast`, `${movie.title} ${year || ''}`, 'free movie downloads', 'legal movie downloads', 'worldwide movies'].filter(Boolean).join(', ');
+    document.title = title;
+    const meta = (selector: string, attr: string, key: string, value: string) => {
+      let el = document.head.querySelector<HTMLMetaElement>(selector);
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr,key); document.head.appendChild(el); }
+      el.content = value;
+    };
+    meta('meta[name="description"]','name','description',description);
+    meta('meta[name="keywords"]','name','keywords',keywords);
+    meta('meta[property="og:title"]','property','og:title',title);
+    meta('meta[property="og:description"]','property','og:description',description);
+    meta('meta[property="og:type"]','property','og:type','video.movie');
+    if (movie.poster_path) meta('meta[property="og:image"]','property','og:image',image(movie.poster_path));
+    meta('meta[name="twitter:card"]','name','twitter:card','summary_large_image');
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+    canonical.href = window.location.origin + window.location.pathname;
+    let script = document.head.querySelector<HTMLScriptElement>('#movie-jsonld');
+    if (!script) { script = document.createElement('script'); script.id = 'movie-jsonld'; script.type = 'application/ld+json'; document.head.appendChild(script); }
+    script.textContent = JSON.stringify({
+      '@context':'https://schema.org',
+      '@type':'Movie',
+      name:movie.title,
+      description:movie.overview || description,
+      datePublished:movie.release_date || undefined,
+      image:movie.poster_path ? image(movie.poster_path) : undefined,
+      inLanguage:movie.original_language || undefined,
+      genre:movie.genres?.map(g=>g.name),
+      url:canonical.href,
+      aggregateRating: movie.vote_average > 0 ? {'@type':'AggregateRating',ratingValue:movie.vote_average,bestRating:10} : undefined
+    });
+    return () => { script?.remove(); };
+  },[movie]);
+
   if(error)return <><PageHeader title="Movie details">{error}</PageHeader><Link to="/movies">Back to movies</Link></>;
   if(!movie)return <p className="muted">Loading movie details…</p>;
   const director=credits.crew?.find(c=>c.job==='Director')?.name;
   return <><PageHeader title={movie.title}>{movie.release_date?.slice(0,4)} · {movie.genres?.map(g=>g.name).join(', ')} · ★ {movie.vote_average?.toFixed(1)}</PageHeader>
     {movie.backdrop_path&&<img src={image(movie.backdrop_path,'w1280')} alt="" style={{width:'100%',borderRadius:12,maxHeight:420,objectFit:'cover'}}/>}
-    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download availability</h3><p>Sorry, file not available yet.</p><p className="muted small">TMDB provides metadata and artwork, not movie download files. File size and quality will only be displayed when an authorised download is added.</p></div></section>
+    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download availability</h3><p>Sorry, file not available yet.</p><button className="btn" type="button" disabled aria-disabled="true">Download unavailable</button><p className="muted small">We only activate downloads when an authorised file is available. TMDB provides movie metadata and artwork, not downloadable movie files.</p></div></section>
     <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><article className="card release" key={person.id}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">{person.character}</p></div></article>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </>;
 }
