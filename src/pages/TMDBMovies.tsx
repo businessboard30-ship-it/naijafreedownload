@@ -106,3 +106,39 @@ export function TMDBMovieDetail() {
     <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><article className="card release" key={person.id}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">{person.character}</p></div></article>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </>;
 }
+
+
+export function TMDBDocumentaries() {
+  useSeo('Documentaries worldwide', 'Discover documentary films from around the world, including nature, history, science, music, culture and true stories.');
+  const [data,setData] = useState<Results | null>(null);
+  const [page,setPage] = useState(1);
+  const [sort,setSort] = useState('popularity.desc');
+  const [year,setYear] = useState('');
+  const [error,setError] = useState('');
+  useEffect(()=>{
+    const ctrl = new AbortController();
+    const params = new URLSearchParams({page:String(page),with_genres:'99',sort_by:sort});
+    if(year) params.set('primary_release_year',year);
+    fetch('/api/tmdb/discover/movie?'+params,{signal:ctrl.signal})
+      .then(r=>r.ok?r.json():r.json().then(d=>Promise.reject(new Error(d.error || 'Documentary catalogue unavailable.'))))
+      .then(d=>{setData(d);setError('');})
+      .catch(e=>{if(e.name!=='AbortError')setError(e.message);});
+    return ()=>ctrl.abort();
+  },[page,sort,year]);
+  const items=data?.results ?? [];
+  return <>
+    <PageHeader title="Documentaries">Explore documentary films from across the world: nature, history, science, music, culture, biography and real-life stories. This is a discovery catalogue; download links are shown only when an authorised file is available.</PageHeader>
+    <div className="toolbar" aria-label="Documentary filters">
+      <div className="field"><label htmlFor="doc-sort">Order</label><select id="doc-sort" value={sort} onChange={e=>{setSort(e.target.value);setPage(1);}}><option value="popularity.desc">Popular</option><option value="vote_average.desc">Top rated</option><option value="primary_release_date.desc">Recently released</option><option value="revenue.desc">Highest grossing</option></select></div>
+      <div className="field"><label htmlFor="doc-year">Release year</label><select id="doc-year" value={year} onChange={e=>{setYear(e.target.value);setPage(1);}}><option value="">All years</option>{Array.from({length:80},(_,i)=>String(new Date().getFullYear()-i)).map(y=><option key={y} value={y}>{y}</option>)}</select></div>
+    </div>
+    {error&&<p role="alert" className="panel">{error}</p>}
+    {!data&&!error&&<p className="muted">Loading documentaries…</p>}
+    {data&&<>
+      <p className="muted small">{data.total_results.toLocaleString()} documentary films in the worldwide catalogue</p>
+      {items.length===0?<p className="panel">No documentaries match these filters. Try another year or sort order.</p>:<div className="grid">{items.map(m=><Link className="card release" key={m.id} to={`/movies/${m.id}`} style={{textDecoration:'none'}}>{m.poster_path?<img className="cover" src={image(m.poster_path)} alt={m.title} loading="lazy"/>:<div className="cover cover-empty">No poster</div>}<div className="release-body"><h3>{m.title}</h3><p className="muted small">{m.release_date?.slice(0,4)||'Release date unavailable'} · ★ {m.vote_average?.toFixed(1)??'—'}</p><p className="desc">{m.overview||'No synopsis available.'}</p><span>View documentary details</span></div></Link>)}</div>}
+      <div className="toolbar"><button className="btn" disabled={page<=1} onClick={()=>setPage(p=>p-1)}>Previous</button><span className="muted small">Page {page} of {Math.min(data.total_pages,500)}</span><button className="btn" disabled={page>=data.total_pages||page>=500} onClick={()=>setPage(p=>p+1)}>Next</button></div>
+    </>}
+    <p className="muted small">Documentary metadata and images provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB. NaijaFreeDownload does not host or link to unauthorised copies.</p>
+  </>;
+}
