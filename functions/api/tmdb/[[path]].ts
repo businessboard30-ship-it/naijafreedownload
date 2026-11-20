@@ -10,7 +10,7 @@ const ALLOWED = [
   /^movie\/[0-9]+\/credits$/,
 ];
 
-export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
+export async function onRequest({ request, env }: { request: Request; env: Env }) {
   const token = env.TMDB_READ_ACCESS_TOKEN;
   if (!token) return Response.json({ error: 'Movie catalogue is being configured. Please try again later.' }, { status: 503 });
 
@@ -39,4 +39,4 @@ export const onRequest: PagesFunction<Env> = async ({ request, env }) => {
   const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=300, s-maxage=900', 'Access-Control-Allow-Origin': '*' });
   if (!response.ok) return new Response(JSON.stringify({ error: response.status === 401 ? 'TMDB credentials are invalid or not configured.' : 'Movie information is temporarily unavailable.' }), { status: response.status, headers });
   return new Response(response.body, { status: 200, headers });
-};
+}
