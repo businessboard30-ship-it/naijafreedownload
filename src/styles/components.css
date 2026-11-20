@@ -45,3 +45,17 @@
 .state-error { border-style: solid; border-color: #e7b9a0; background: var(--accent-soft); }
 .fatal { max-width: 420px; margin: 20vh auto; padding: 0 20px; text-align: center; }
 .fatal p { color: var(--muted); margin: 8px 0 16px; }
+
+/* Download actions and sponsor interstitial */
+.btn-download { background: #e87524; border-color: #e87524; color: #fff; }
+.btn-download:hover:not(:disabled) { background: #c85d16; border-color: #c85d16; color: #fff; }
+.download-sources { display: flex; flex-wrap: wrap; gap: 8px; }
+.download-dialog-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgb(0 0 0 / 48%); }
+.download-dialog { position: relative; width: min(100%, 680px); max-height: min(90vh, 820px); overflow: auto; padding: 28px; background: #fff; color: #171717; border: 1px solid #e8e8e6; border-radius: 8px; box-shadow: 0 18px 60px rgb(0 0 0 / 18%); }
+.download-dialog h2 { margin: 4px 0 10px; }
+.download-dialog-close { position: absolute; top: 12px; right: 14px; border: 0; background: transparent; color: #555; font-size: 28px; cursor: pointer; }
+.download-ad-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+.download-ad-slot { min-height: 118px; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px; border: 1px dashed #d4d4d0; border-radius: 6px; background: #fafaf9; }
+.download-ad-label { color: #777; font-size: 10px; letter-spacing: .08em; }
+.download-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+@media (max-width: 560px) { .download-dialog { padding: 22px 16px; } .download-ad-grid { grid-template-columns: 1fr; } .download-ad-slot { min-height: 76px; } }
