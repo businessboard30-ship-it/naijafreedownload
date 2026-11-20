@@ -7,6 +7,7 @@ import { TMDBMovies, TMDBMovieDetail, TMDBDocumentaries, PersonDetail, MovieChar
 import AnimePage, { AnimeDetail, AnimeCharacterDetail } from './pages/Anime';
 import Music from './pages/Music';
 import GlobalSearch from './pages/GlobalSearch';
+import DownloadCatalogue from './pages/DownloadCatalogue';
 import { About, Copyright, Creators, NotFound } from './pages/Static';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route index element={<Overview />} />
           <Route path="music" element={<Music />} />
           <Route path="movies" element={<TMDBMovies />} />
+          <Route path="downloads" element={<DownloadCatalogue />} />
           <Route path="movies/:id" element={<TMDBMovieDetail />} />
           <Route path="tv/:id" element={<TMDBTVDetail />} />
           <Route path="movie-character/:movieId/:personId" element={<MovieCharacterDetail />} />
