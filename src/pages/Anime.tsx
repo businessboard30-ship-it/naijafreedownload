@@ -15,7 +15,8 @@ export default function AnimePage() {
     const ctrl=new AbortController(); setLoading(true); setError('');
     const path=submitted?'anime':(tab.startsWith('top/')?'top/anime':tab); const params=new URLSearchParams({page:String(page),limit:'24',sfw:'true'});
     if(submitted) params.set('q',submitted);
-    if(tab==='top/popular'&&!submitted){params.set('filter','bypopularity');}\n    if(tab==='top/rated'&&!submitted){params.set('order_by','score');params.set('sort','desc');}
+    if(tab==='top/popular'&&!submitted){params.set('filter','bypopularity');}
+    if(tab==='top/rated'&&!submitted){params.set('order_by','score');params.set('sort','desc');}
     fetch('/api/anime/'+path+'?'+params,{signal:ctrl.signal}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||'Anime catalogue unavailable.');return d;})
       .then(setData).catch(e=>{if(e.name!=='AbortError')setError(e.message);}).finally(()=>{if(!ctrl.signal.aborted)setLoading(false);});
     return ()=>ctrl.abort();
