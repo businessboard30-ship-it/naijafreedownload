@@ -6,6 +6,7 @@ const ALLOWED = [
   /^discover\/movie$/,
   /^search\/movie$/,
   /^search\/tv$/,
+  /^search\/person$/,
   /^tv\/[0-9]+$/,
   /^tv\/[0-9]+\/credits$/,
   /^genre\/movie\/list$/,
@@ -17,6 +18,7 @@ const ALLOWED = [
   /^person\/[0-9]+$/,
   /^person\/[0-9]+\/movie_credits$/,
   /^person\/[0-9]+\/tv_credits$/,
+  /^person\/[0-9]+\/combined_credits$/,
 ];
 
 export async function onRequest({ request, env }: { request: Request; env: Env }) {
