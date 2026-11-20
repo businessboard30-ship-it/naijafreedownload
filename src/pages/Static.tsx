@@ -7,6 +7,26 @@ const contact = CONTACT_EMAIL
   ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
   : <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer">the project issue tracker</a>;
 
+
+export function Contact() {
+  useSeo('Contact us', 'Contact the NaijaFreeDownload team for general enquiries, creator submissions, corrections and copyright concerns.');
+  return (
+    <>
+      <PageHeader title="Contact us">Questions, feedback or a concern about a listing? Get in touch with the NaijaFreeDownload team.</PageHeader>
+      <section className="panel prose">
+        <h2>Email</h2>
+        <p>For general enquiries, feedback, corrections and support, email us at {contact}.</p>
+        <p><a className="btn" href={`mailto:${CONTACT_EMAIL}?subject=NaijaFreeDownload%20enquiry`}>Email NaijaFreeDownload</a></p>
+        <h2>Creator submissions</h2>
+        <p>Artists, filmmakers and rights holders can contact us with release details and evidence that the work may be distributed. Please review our <Link to="/creators">creator submission requirements</Link>.</p>
+        <h2>Copyright concerns</h2>
+        <p>For copyright or licensing concerns, include the page URL, the title of the affected work and information showing your relationship to the rights. See our <Link to="/copyright">copyright and takedown policy</Link>.</p>
+        <p>We aim to review messages as promptly as possible. Please do not send passwords, payment details or other sensitive information by email.</p>
+      </section>
+    </>
+  );
+}
+
 export function Creators() {
   useSeo('For creators', 'How to submit music, films and documentaries from anywhere in the world to NaijaFreeDownload, and what licence information is required.');
   return (
