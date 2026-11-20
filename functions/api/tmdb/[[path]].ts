@@ -9,6 +9,9 @@ const ALLOWED = [
   /^configuration\/countries$/,
   /^movie\/[0-9]+$/,
   /^movie\/[0-9]+\/credits$/,
+  /^person\/[0-9]+$/,
+  /^person\/[0-9]+\/movie_credits$/,
+  /^person\/[0-9]+\/tv_credits$/,
 ];
 
 export async function onRequest({ request, env }: { request: Request; env: Env }) {
