@@ -22,6 +22,8 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/creators', label: 'For creators' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact us' },
+    { to: '/privacy', label: 'Privacy Policy' },
+    { to: '/terms', label: 'Terms and Conditions' },
     { to: '/copyright', label: 'Copyright and takedown' },
   ] },
 ];
