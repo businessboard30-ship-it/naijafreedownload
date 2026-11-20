@@ -36,8 +36,8 @@ export default function CatalogueView({ title, description, category, latest, sh
   const all = state.releases;
   const scoped = category ? all.filter((r) => r.category === category) : all;
   if (all.length === 0) {
-    return <>{intro}<EmptyState title="No releases yet" action={<Link className="btn" to="/creators">Submit a release</Link>}>
-      Approved releases will appear here. Only public-domain, creator-authorised or licensed content is published.
+    return <>{intro}<EmptyState title="No direct downloads listed here yet">
+      This section is reserved for verified downloads submitted by rights holders or authorised archives. You can still <Link to="/movies">discover worldwide movies</Link> and <Link to="/music">explore music charts and search artists</Link>. Creators can <Link to="/creators">submit a release for review</Link>.
     </EmptyState></>;
   }
 
@@ -79,7 +79,7 @@ export default function CatalogueView({ title, description, category, latest, sh
       {result.total === 0 ? (
         <EmptyState title={filtered ? 'No matching releases' : `No ${title.toLowerCase()} yet`}
           action={filtered ? <button className="btn" onClick={() => setParams({}, { replace: true })}>Clear filters</button> : <Link className="btn" to="/creators">Submit a release</Link>}>
-          {filtered ? 'Try a different search term or remove a filter.' : 'Approved releases in this section will appear here.'}
+          {filtered ? 'Try a different search term or remove a filter.' : <>This section contains verified direct downloads, not the full discovery catalogue. Try <Link to="/movies">Movies</Link> or <Link to="/music">Music</Link> to explore worldwide titles.</>}
         </EmptyState>
       ) : (
         <>
