@@ -41,7 +41,6 @@ export async function onRequest({ request }: { request: Request }) {
   try {
     const upstream = await fetch(target.toString(), {
       headers: { Accept: 'application/json' },
-      cf: { cacheTtl: 300, cacheEverything: true },
     });
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
