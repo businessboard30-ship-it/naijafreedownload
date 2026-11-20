@@ -4,29 +4,11 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
-/index.html
-  Cache-Control: no-cache, no-store, must-revalidate
-
 /
-  Cache-Control: no-cache, no-store, must-revalidate
+  Cache-Control: no-cache
 
-/*.js
-  Content-Type: application/javascript; charset=utf-8
+/index.html
+  Cache-Control: no-cache
 
-/*.mjs
-  Content-Type: application/javascript; charset=utf-8
-
-/*.css
-  Content-Type: text/css; charset=utf-8
-
-/assets/*.js
-  Content-Type: application/javascript; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/assets/*.mjs
-  Content-Type: application/javascript; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/assets/*.css
-  Content-Type: text/css; charset=utf-8
+/assets/*
   Cache-Control: public, max-age=31536000, immutable
