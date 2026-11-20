@@ -9,6 +9,52 @@ type Results = { results: Movie[]; total_pages: number; total_results: number };
 const image = (path: string | null, size = 'w500') => path ? `https://image.tmdb.org/t/p/${size}${path}` : '';
 type Country = { iso_3166_1: string; english_name: string };
 
+
+
+const SEASONAL_CATEGORIES = [
+  { label: 'Christmas', query: 'Christmas' },
+  { label: 'Halloween', query: 'Halloween' },
+  { label: 'Valentine’s Day', query: 'Valentine' },
+  { label: 'Summer', query: 'Summer holiday' },
+  { label: 'Winter', query: 'Winter' },
+  { label: 'New Year', query: 'New Year' },
+  { label: 'Easter', query: 'Easter' },
+];
+
+export function SeasonalMovies() {
+  const [category, setCategory] = useState(SEASONAL_CATEGORIES[0]);
+  const [data, setData] = useState<Results | null>(null);
+  const [error, setError] = useState('');
+  useSeo('Seasonal movies', 'Explore movies for Christmas, Halloween, Valentine’s Day, summer, winter, New Year and other seasonal occasions.');
+  useEffect(() => {
+    const ctrl = new AbortController();
+    setData(null);
+    setError('');
+    fetch('/api/tmdb/search/movie?query=' + encodeURIComponent(category.query) + '&page=1', { signal: ctrl.signal })
+      .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(new Error(d.error || 'Seasonal movie catalogue unavailable.'))))
+      .then(setData)
+      .catch(e => { if (e.name !== 'AbortError') setError(e.message); });
+    return () => ctrl.abort();
+  }, [category]);
+  const items = data?.results ?? [];
+  return <>
+    <PageHeader title="Seasonal movies">Find films for the moment: festive favourites, spooky nights, romantic dates, summer breaks and winter evenings.</PageHeader>
+    <nav className="toolbar" aria-label="Seasonal movie categories">
+      {SEASONAL_CATEGORIES.map(item => <button key={item.label} className={category.label === item.label ? 'btn btn-primary' : 'btn'} onClick={() => setCategory(item)}>{item.label}</button>)}
+    </nav>
+    {error && <p className="panel" role="alert">{error}</p>}
+    {!data && !error && <p className="muted">Finding {category.label.toLowerCase()} movies…</p>}
+    {data && <>
+      <p className="muted small">{data.total_results.toLocaleString()} results for {category.label}</p>
+      {items.length ? <div className="grid">{items.map(m => <article className="card release" key={m.id}>
+        {m.poster_path ? <img className="cover" src={image(m.poster_path)} alt={m.title} loading="lazy" /> : <div className="cover cover-empty">No poster</div>}
+        <div className="release-body"><h3><Link to={'/movies/' + m.id}>{m.title}</Link></h3><p className="muted small">{m.release_date?.slice(0,4) || 'Release date unavailable'} · ★ {m.vote_average?.toFixed(1) ?? '—'}</p><p className="desc">{m.overview || 'No synopsis available.'}</p><Link to={'/movies/' + m.id}>View movie details</Link></div>
+      </article>)}</div> : <p className="panel">No titles found in this category right now. Try another seasonal collection.</p>}
+    </>}
+    <p className="muted small">Movie metadata and images provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  </>;
+}
+
 export function TMDBMovies() {
   useSeo('Movies worldwide', 'Discover trending, popular and top-rated films from countries and cinema industries around the world.');
   const [tab,setTab] = useState('trending/movie/week');
@@ -103,7 +149,7 @@ export function TMDBMovieDetail() {
   const director=credits.crew?.find(c=>c.job==='Director')?.name;
   return <><PageHeader title={movie.title}>{movie.release_date?.slice(0,4)} · {movie.genres?.map(g=>g.name).join(', ')} · ★ {movie.vote_average?.toFixed(1)}</PageHeader>
     {movie.backdrop_path&&<img src={image(movie.backdrop_path,'w1280')} alt="" style={{width:'100%',borderRadius:12,maxHeight:420,objectFit:'cover'}}/>}
-    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download</h3><DownloadButton movieId={movie.id}/><p className="muted small">Files are linked from external hosts such as TeraBox. A download appears only after a verified, authorised file link has been added. TMDB provides movie metadata and artwork, not downloadable movie files.</p></div></section>
+    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download</h3><DownloadButton movieId={movie.id} detail /><p className="muted small">Files are linked from external hosts such as TeraBox. A download appears only after a verified, authorised file link has been added. TMDB provides movie metadata and artwork, not downloadable movie files.</p></div></section>
     <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><div className="card release" key={person.id}><Link to={'/people/'+person.id} style={{textDecoration:'none'}}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">Performer · {person.character}</p><span>View performer and filmography</span></div></Link><div className="release-body" style={{paddingTop:0}}><Link to={'/movie-character/'+movie.id+'/'+person.id}>Explore character: {person.character||'Role details'}</Link></div></div>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </>;
 }
