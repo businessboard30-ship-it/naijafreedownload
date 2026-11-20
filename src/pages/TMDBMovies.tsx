@@ -6,8 +6,7 @@ import { useSeo } from '../lib/useSeo';
 type Movie = { id: number; title: string; overview: string; poster_path: string | null; backdrop_path: string | null; release_date: string; vote_average: number; genre_ids?: number[]; original_language?: string; origin_country?: string[]; runtime?: number; genres?: {id:number;name:string}[] };
 type Results = { results: Movie[]; total_pages: number; total_results: number };
 const image = (path: string | null, size = 'w500') => path ? `https://image.tmdb.org/t/p/${size}${path}` : '';
-const countries = ['US','GB','NG','GH','IN','KR','JP','CN','FR','DE','IT','ES','BR','MX','ZA','EG','TR','AU','CA','NZ','PH','TH','ID','PK','BD','KE','UG','TZ'];
-const countryNames: Record<string,string> = { US:'United States',GB:'United Kingdom',NG:'Nigeria',GH:'Ghana',IN:'India',KR:'South Korea',JP:'Japan',CN:'China',FR:'France',DE:'Germany',IT:'Italy',ES:'Spain',BR:'Brazil',MX:'Mexico',ZA:'South Africa',EG:'Egypt',TR:'Türkiye',AU:'Australia',CA:'Canada',NZ:'New Zealand',PH:'Philippines',TH:'Thailand',ID:'Indonesia',PK:'Pakistan',BD:'Bangladesh',KE:'Kenya',UG:'Uganda',TZ:'Tanzania' };
+type Country = { iso_3166_1: string; english_name: string };
 
 export function TMDBMovies() {
   useSeo('Movies worldwide', 'Discover trending, popular and top-rated films from countries and cinema industries around the world.');
@@ -15,11 +14,11 @@ export function TMDBMovies() {
   const [query,setQuery] = useState('');
   const [country,setCountry] = useState('');
   const [genre,setGenre] = useState('');
-  const [genres,setGenres] = useState<{id:number;name:string}[]>([]);
+  const [genres,setGenres] = useState<{id:number;name:string}[]>([]);\n  const [countries,setCountries] = useState<Country[]>([]);
   const [data,setData] = useState<Results | null>(null);
   const [error,setError] = useState('');
   const [page,setPage] = useState(1);
-  useEffect(()=>{ fetch('/api/tmdb/genre/movie/list').then(r=>r.ok?r.json():Promise.reject()).then(d=>setGenres(d.genres ?? [])).catch(()=>{}); },[]);
+  useEffect(()=>{ fetch('/api/tmdb/genre/movie/list').then(r=>r.ok?r.json():Promise.reject()).then(d=>setGenres(d.genres ?? [])).catch(()=>{}); fetch('/api/tmdb/configuration/countries').then(r=>r.ok?r.json():Promise.reject()).then(d=>setCountries(d ?? [])).catch(()=>{}); },[]);
   useEffect(()=>{
     const ctrl = new AbortController();
     const path = query.trim() ? 'search/movie' : tab;
@@ -39,7 +38,7 @@ export function TMDBMovies() {
   return <><PageHeader title="Movies">Discover cinema from every country, language and culture. Explore global trends, search titles, or filter by country and genre.</PageHeader>
     <div className="toolbar" aria-label="Movie discovery filters">
       <div className="field grow"><label htmlFor="tmdb-search">Search movies worldwide</label><input id="tmdb-search" type="search" placeholder="Search any movie..." value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}} /></div>
-      <div className="field"><label htmlFor="tmdb-country">Country</label><select id="tmdb-country" value={country} onChange={e=>{setCountry(e.target.value);setTab('discover/movie');setPage(1);}}><option value="">All countries</option>{countries.map(c=><option key={c} value={c}>{countryNames[c]}</option>)}</select></div>
+      <div className="field"><label htmlFor="tmdb-country">Country</label><select id="tmdb-country" value={country} onChange={e=>{setCountry(e.target.value);setTab('discover/movie');setPage(1);}}><option value="">All countries</option>{countries.map(c=><option key={c.iso_3166_1} value={c.iso_3166_1}>{c.english_name}</option>)}</select></div>
       <div className="field"><label htmlFor="tmdb-genre">Genre</label><select id="tmdb-genre" value={genre} onChange={e=>{setGenre(e.target.value);setTab('discover/movie');setPage(1);}}><option value="">All genres</option>{genres.map(g=><option key={g.id} value={g.id}>{g.name}</option>)}</select></div>
     </div>
     <nav className="toolbar" aria-label="Movie collections">{[['trending/movie/week','Trending'],['movie/popular','Popular'],['movie/top_rated','Top rated'],['movie/upcoming','Upcoming'],['movie/now_playing','Now playing']].map(([v,l])=><button key={v} className={tab===v?'btn btn-primary':'btn'} onClick={()=>{setTab(v);setQuery('');setCountry('');setGenre('');setPage(1);}}>{l}</button>)}</nav>
