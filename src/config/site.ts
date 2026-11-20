@@ -10,6 +10,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/', label: 'Overview', end: true },
     { to: '/music', label: 'Music' },
     { to: '/movies', label: 'Movies' },
+    { to: '/anime', label: 'Anime' },
     { to: '/independent', label: 'Independent creators' },
     { to: '/documentaries', label: 'Documentaries' },
     { to: '/latest', label: 'Latest releases' },
