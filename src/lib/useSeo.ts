@@ -12,7 +12,7 @@ export function useSeo(title: string, description: string) {
     set('meta[name="description"]', 'name', 'description', description);
     set('meta[property="og:title"]', 'property', 'og:title', document.title);
     set('meta[property="og:description"]', 'property', 'og:description', description);
-    const base = (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, '');
+    const base = ((import.meta.env.VITE_SITE_URL as string | undefined) || window.location.origin).replace(/\/$/, '');
     if (base) {
       let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
       if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
