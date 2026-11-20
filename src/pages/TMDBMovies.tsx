@@ -103,7 +103,7 @@ export function TMDBMovieDetail() {
   return <><PageHeader title={movie.title}>{movie.release_date?.slice(0,4)} · {movie.genres?.map(g=>g.name).join(', ')} · ★ {movie.vote_average?.toFixed(1)}</PageHeader>
     {movie.backdrop_path&&<img src={image(movie.backdrop_path,'w1280')} alt="" style={{width:'100%',borderRadius:12,maxHeight:420,objectFit:'cover'}}/>}
     <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download availability</h3><p>Sorry, file not available yet.</p><button className="btn" type="button" disabled aria-disabled="true">Download unavailable</button><p className="muted small">We only activate downloads when an authorised file is available. TMDB provides movie metadata and artwork, not downloadable movie files.</p></div></section>
-    <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><Link className="card release" to={'/people/'+person.id} key={person.id} style={{textDecoration:'none'}}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">{person.character}</p><span>View profile and filmography</span></div></Link>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><div className="card release" key={person.id}><Link to={'/people/'+person.id} style={{textDecoration:'none'}}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">Performer · {person.character}</p><span>View performer and filmography</span></div></Link><div className="release-body" style={{paddingTop:0}}><Link to={'/movie-character/'+movie.id+'/'+person.id}>Explore character: {person.character||'Role details'}</Link></div></div>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </>;
 }
 
@@ -155,4 +155,46 @@ export function PersonDetail(){
  if(!person)return <p className="muted">Loading profile…</p>;
  const works=[...(credits.cast||[]),...(credits.crew||[])].filter((v,i,a)=>a.findIndex(x=>x.id===v.id)===i).sort((a,b)=>(b.release_date||'').localeCompare(a.release_date||''));
  return <><PageHeader title={person.name}>{person.known_for_department||'Film and television'} · {person.birthday||'Birth date not listed'} · {person.place_of_birth||'Place not listed'}</PageHeader><section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{person.profile_path&&<img src={image(person.profile_path)} alt={person.name} style={{width:210,maxWidth:'45%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Biography</h2><p>{person.biography||'No biography available.'}</p></div></section><section><h2>Movies and appearances</h2><div className="grid">{works.map((w,i)=><Link className="card release" key={w.id+'-'+i} to={'/movies/'+w.id} style={{textDecoration:'none'}}>{w.poster_path&&<img className="cover" src={image(w.poster_path,'w342')} alt="" loading="lazy"/>}<div className="release-body"><h3>{w.title||w.name}</h3><p className="muted small">{w.release_date?.slice(0,4)||'Date unavailable'} · {w.character||w.job||'Appearance'}</p></div></Link>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">Person and film metadata provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p></>;
+}
+
+
+type MovieCharacterCast={id:number;name:string;character:string;profile_path:string|null};
+type MovieCharacterWork={id:number;title?:string;character?:string;release_date?:string;poster_path:string|null};
+export function MovieCharacterDetail(){
+ const {movieId,personId}=useParams();
+ const [movie,setMovie]=useState<Movie|null>(null);
+ const [cast,setCast]=useState<MovieCharacterCast|null>(null);
+ const [works,setWorks]=useState<MovieCharacterWork[]>([]);
+ const [error,setError]=useState('');
+ useSeo(cast?cast.character+' — character profile':'Movie character profile',cast?'Explore '+cast.character+', the performer behind the role, the film it appears in and other screen credits.':'Movie character profile, cast member and related film credits.');
+ useEffect(()=>{
+  const ctrl=new AbortController();
+  Promise.all([
+   fetch('/api/tmdb/movie/'+movieId,{signal:ctrl.signal}),
+   fetch('/api/tmdb/movie/'+movieId+'/credits',{signal:ctrl.signal}),
+   fetch('/api/tmdb/person/'+personId+'/movie_credits',{signal:ctrl.signal})
+  ]).then(async ([m,c,p])=>{
+   if(!m.ok||!c.ok||!p.ok)throw new Error('Character information is temporarily unavailable.');
+   return Promise.all([m.json(),c.json(),p.json()]);
+  }).then(([m,c,p])=>{
+   setMovie(m);
+   const entry=(c.cast||[]).find((v:MovieCharacterCast)=>String(v.id)===String(personId));
+   if(!entry)throw new Error('This cast member could not be matched to the selected film.');
+   setCast(entry);
+   setWorks((p.cast||[]).filter((w:MovieCharacterWork)=>w.id!==Number(movieId)).sort((a:MovieCharacterWork,b:MovieCharacterWork)=>(b.release_date||'').localeCompare(a.release_date||'')));
+  }).catch(e=>{if(e.name!=='AbortError')setError(e.message);});
+  return()=>ctrl.abort();
+ },[movieId,personId]);
+ if(error)return <><PageHeader title="Character profile">{error}</PageHeader><Link to="/movies">Back to movies</Link></>;
+ if(!movie||!cast)return <p className="muted">Loading character profile…</p>;
+ return <>
+  <PageHeader title={cast.character||'Movie character'}>Character profile from {movie.title} ({movie.release_date?.slice(0,4)||'year unavailable'}). Explore the film, the performer and other screen credits.</PageHeader>
+  <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>
+   {cast.profile_path&&<img src={image(cast.profile_path,'w342')} alt={cast.name} style={{width:190,maxWidth:'42%',height:'fit-content',borderRadius:8}}/>}
+   <div style={{flex:'1 1 260px'}}><h2>About this role</h2><p><strong>Character:</strong> {cast.character||'Role not listed'}</p><p><strong>Portrayed by:</strong> <Link to={'/people/'+cast.id}>{cast.name}</Link></p><p><strong>Featured in:</strong> <Link to={'/movies/'+movie.id}>{movie.title}</Link></p><p>{movie.overview||'Film synopsis unavailable.'}</p><p><Link to={'/people/'+cast.id}>View performer biography and complete filmography</Link></p></div>
+  </section>
+  <section><h2>Other films featuring {cast.name}</h2><p className="muted small">These are the performer’s other screen credits; they are not necessarily appearances by this same character.</p><div className="grid">{works.slice(0,24).map((w,i)=><Link className="card release" key={w.id+'-'+i} to={'/movies/'+w.id} style={{textDecoration:'none'}}>{w.poster_path&&<img className="cover" src={image(w.poster_path,'w342')} alt="" loading="lazy"/>}<div className="release-body"><h3>{w.title||'Untitled film'}</h3><p className="muted small">{w.release_date?.slice(0,4)||'Year unavailable'} · {w.character||'Cast appearance'}</p></div></Link>)}</div></section>
+  <Link to={'/movies/'+movie.id}>Back to {movie.title}</Link>
+  <p className="muted small">Character, cast and film metadata provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+ </>;
 }
