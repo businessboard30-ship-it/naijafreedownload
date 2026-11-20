@@ -11,7 +11,7 @@ const ALLOWED = [
   /^genre\/movie\/list$/,
   /^configuration\/countries$/,
   /^movie\/[0-9]+$/,
-  /^movie\/[0-9]+\/credits$/,
+  /^movie\/[0-9]+\/credits$/,\n  /^movie\/[0-9]+\/videos$/,\n  /^movie\/[0-9]+\/watch\/providers$/,
   /^person\/[0-9]+$/,
   /^person\/[0-9]+\/movie_credits$/,
   /^person\/[0-9]+\/tv_credits$/,
