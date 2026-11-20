@@ -35,7 +35,7 @@ export default function GlobalSearch(){
  return()=>ctrl.abort();
  },[q]);
  const filteredPeople=people.filter(p=>personRole==='all'||(p.known_for_department||'').toLowerCase()===(personRole==='acting'?'acting':personRole==='directing'?'directing':personRole==='writing'?'writing':'production'));
- const local=state.status==='ready'?state.releases.filter(r=>(r.title+' '+r.creator+' '+r.description).toLowerCase().includes(q.toLowerCase())).slice(0,20):[];
+ const local=state.status==='ready'?state.releases.filter(r=>r.category!=='adult'&&(r.title+' '+r.creator+' '+r.description).toLowerCase().includes(q.toLowerCase())).slice(0,20):[];
  return <><PageHeader title="Search">Search worldwide movies, TV series, actors, actresses, directors, filmmakers, anime, music and independent releases.</PageHeader>
  <form className="toolbar" role="search" onSubmit={e=>{e.preventDefault();setParams(input.trim()?{q:input.trim()}:{});}}><div className="field grow"><label htmlFor="global-q">What are you looking for?</label><input id="global-q" type="search" value={input} onChange={e=>setInput(e.target.value)} placeholder="Try a film, actor, actress, director, song or artist"/></div><button className="btn btn-primary" type="submit">Search</button></form>
  {!q&&<p className="muted">Search once to find film and television professionals, movies, series, anime characters, music artists, tracks and independent releases. Choose a profession filter to narrow people results.</p>}{loading&&<p className="muted" role="status">Searching all catalogues…</p>}{error&&<p className="panel" role="alert">{error}</p>}
