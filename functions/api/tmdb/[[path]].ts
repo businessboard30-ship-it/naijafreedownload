@@ -29,7 +29,7 @@ export async function onRequest({ request, env }: { request: Request; env: Env }
 
   const params = new URLSearchParams();
   for (const [key, value] of incoming.searchParams) {
-    if (['page', 'query', 'language', 'region', 'with_genres', 'with_origin_country', 'sort_by', 'primary_release_year', 'year'].includes(key)) {
+    if (['page', 'query', 'language', 'region', 'with_genres', 'with_origin_country', 'sort_by', 'primary_release_year', 'year', 'watch_region'].includes(key)) {
       params.set(key, value.slice(0, 120));
     }
   }
