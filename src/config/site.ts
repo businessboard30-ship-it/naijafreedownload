@@ -9,7 +9,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   { group: 'Browse', items: [
     { to: '/', label: 'Overview', end: true },
     { to: '/music', label: 'Music' },
-    { to: '/movies', label: 'Movies' },
+    { to: '/movies', label: 'Movies' },\n    { to: '/nigeria-movies', label: 'Nigeria movies' },
     { to: '/seasonal', label: 'Seasonal movies' },
     { to: '/downloads', label: 'Downloads' },
     { to: '/anime', label: 'Anime' },
