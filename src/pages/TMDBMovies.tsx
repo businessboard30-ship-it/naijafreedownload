@@ -14,7 +14,8 @@ export function TMDBMovies() {
   const [query,setQuery] = useState('');
   const [country,setCountry] = useState('');
   const [genre,setGenre] = useState('');
-  const [genres,setGenres] = useState<{id:number;name:string}[]>([]);\n  const [countries,setCountries] = useState<Country[]>([]);
+  const [genres,setGenres] = useState<{id:number;name:string}[]>([]);
+  const [countries,setCountries] = useState<Country[]>([]);
   const [data,setData] = useState<Results | null>(null);
   const [error,setError] = useState('');
   const [page,setPage] = useState(1);
