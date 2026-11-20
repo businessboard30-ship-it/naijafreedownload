@@ -8,7 +8,7 @@ import AnimePage, { AnimeDetail, AnimeCharacterDetail } from './pages/Anime';
 import Music from './pages/Music';
 import GlobalSearch from './pages/GlobalSearch';
 import DownloadCatalogue from './pages/DownloadCatalogue';
-import { About, Copyright, Creators, NotFound } from './pages/Static';
+import { About, Contact, Copyright, Creators, NotFound } from './pages/Static';
 
 export default function App() {
   return (
@@ -33,6 +33,7 @@ export default function App() {
           <Route path="search" element={<GlobalSearch />} />
           <Route path="creators" element={<Creators />} />
           <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="copyright" element={<Copyright />} />
           <Route path="*" element={<NotFound />} />
         </Route>
