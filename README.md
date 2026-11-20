@@ -1,16 +1,20 @@
 # NaijaFreeDownload
 
-A catalogue for discovering and downloading **legally available** music, Nollywood films, independent releases and documentaries. Only public-domain, creator-authorised or properly licensed content may be listed.
+A worldwide discovery catalogue for music, movies, independent releases and documentaries. The platform welcomes content from every country, language and region. Only public-domain, creator-authorised or properly licensed content may be listed for download.
+
+## Scope
+
+NaijaFreeDownload is not limited to Nigeria or Africa. Its discovery experience should cover global cinema and music, including (but not limited to) Hollywood, Nollywood, Bollywood, European cinema, Korean and Japanese films, African cinema, Latin American productions, independent releases and international documentaries. Country and language filters should be global.
 
 ## Stack
 
-Vite, React 18, TypeScript and React Router. No backend and no runtime secrets: the site is static and deploys to Cloudflare Pages.
+Vite, React 18, TypeScript and React Router. The current catalogue frontend is static; API-backed features and runtime secrets must use a secure server-side integration.
 
 ## Project structure
 
 ```
 public/            static files (favicon, _redirects, _headers, robots.txt)
-public/data/       releases.json - the catalogue (empty until content is approved)
+public/data/       releases.json - the catalogue
 src/config/        site settings and navigation
 src/layouts/       app shell (top bar, fixed sidebar, content area)
 src/components/    reusable UI (cards, pagination, states, sidebar, top bar)
@@ -23,16 +27,16 @@ src/styles/        base, layout and component CSS
 
 ```bash
 npm install
-npm run dev        # local dev server
+npm run dev
 npm run typecheck
 npm test
-npm run build      # outputs dist/
-npm run preview    # serve the production build
+npm run build
+npm run preview
 ```
 
 ## Environment variables
 
-Copy `.env.example` to `.env` for local use. Every `VITE_*` variable is **bundled into public frontend code**, so never put API tokens or secrets in them.
+Copy `.env.example` to `.env` for local use. Every `VITE_*` variable is bundled into public frontend code, so never put API tokens or secrets in them.
 
 | Variable | Purpose |
 | --- | --- |
@@ -42,36 +46,11 @@ Copy `.env.example` to `.env` for local use. Every `VITE_*` variable is **bundle
 
 ## Adding releases
 
-Add objects to `public/data/releases.json` only after rights are verified.
+Add objects to `public/data/releases.json` only after rights are verified. Every entry must include the licence name, HTTPS licence URL and HTTPS authorised download URL. Never fabricate download availability or file sizes.
 
-```json
-{
-  "id": "unique-id",
-  "title": "Title",
-  "description": "Short description",
-  "category": "music | movie | independent | documentary",
-  "creator": "Artist or filmmaker",
-  "releaseDate": "2025-03-14",
-  "format": "MP3",
-  "fileSizeMB": 8.4,
-  "cover": "https://... or /covers/file.jpg",
-  "licence": { "name": "CC BY 4.0", "url": "https://creativecommons.org/licenses/by/4.0/" },
-  "source": { "name": "Creator website", "url": "https://..." },
-  "downloadUrl": "https://..."
-}
-```
+## Deployment
 
-Entries without a licence name, an https licence link or an https download link are rejected at load time.
-
-## Deploying to Cloudflare Pages (Git integration)
-
-The existing `naijafreedownload.pages.dev` project was created with Direct Upload and cannot be converted. Create a **new** Pages project instead and leave the old one running:
-
-1. Cloudflare dashboard: Workers & Pages, Create, Pages, Connect to Git.
-2. Select `businessboard30-ship-it/naijafreedownload`.
-3. Production branch: `main`. Build command: `npm run build`. Output directory: `dist`. Node version: 20 or later.
-4. Add `VITE_SITE_URL` if desired, then deploy. Pushes to `main` deploy to production and other branches get previews.
-5. Test the preview and production URLs before planning any move of the production address. Do not change DNS or delete the old project until that is approved.
+The production site is hosted on Cloudflare Pages. Follow the existing repository workflow and project settings when deploying. Keep API credentials in server-side Cloudflare secrets, never in frontend environment variables or committed files.
 
 ## Security notes
 
