@@ -198,3 +198,19 @@ export function MovieCharacterDetail(){
   <p className="muted small">Character, cast and film metadata provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
  </>;
 }
+
+
+type TVShow={id:number;name:string;overview:string;poster_path:string|null;backdrop_path:string|null;first_air_date:string;vote_average:number;original_language?:string;origin_country?:string[];number_of_seasons?:number;number_of_episodes?:number;genres?:{id:number;name:string}[];status?:string};
+type TVCredits={cast?:{id:number;name:string;character:string;profile_path:string|null}[];crew?:{job:string;name:string}[]};
+export function TMDBTVDetail(){
+ const {id}=useParams();const [show,setShow]=useState<TVShow|null>(null);const [credits,setCredits]=useState<TVCredits>({});const [error,setError]=useState('');
+ useSeo(show?show.name+' — TV series details':'TV series details',show?'Explore '+show.name+', synopsis, cast, seasons and release information.':'TV series information and cast.');
+ useEffect(()=>{const ctrl=new AbortController();Promise.all([fetch('/api/tmdb/tv/'+id,{signal:ctrl.signal}),fetch('/api/tmdb/tv/'+id+'/credits',{signal:ctrl.signal})]).then(async([a,b])=>{if(!a.ok||!b.ok)throw new Error('Could not load TV series details.');return Promise.all([a.json(),b.json()]);}).then(([s,c])=>{setShow(s);setCredits(c);}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>ctrl.abort();},[id]);
+ if(error)return <><PageHeader title="Series details">{error}</PageHeader><Link to="/search">Back to search</Link></>;
+ if(!show)return <p className="muted">Loading series details…</p>;
+ return <><PageHeader title={show.name}>{show.first_air_date?.slice(0,4)||'Release date unavailable'} · ★ {show.vote_average?.toFixed(1)||'—'} · {show.status||'Status unavailable'}</PageHeader>
+ {show.backdrop_path&&<img src={image(show.backdrop_path,'w1280')} alt="" style={{width:'100%',borderRadius:12,maxHeight:420,objectFit:'cover'}}/>}
+ <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{show.poster_path&&<img src={image(show.poster_path)} alt={show.name+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{show.overview||'No synopsis available.'}</p><p><strong>First aired:</strong> {show.first_air_date||'Unknown'}</p><p><strong>Original language:</strong> {show.original_language?.toUpperCase()||'Unknown'}</p><p><strong>Countries:</strong> {show.origin_country?.join(', ')||'Not listed'}</p><p><strong>Seasons:</strong> {show.number_of_seasons??'Not listed'}</p><p><strong>Episodes:</strong> {show.number_of_episodes??'Not listed'}</p><p><strong>Genres:</strong> {show.genres?.map(g=>g.name).join(', ')||'Not listed'}</p><h3>Availability</h3><p>Sorry, an authorised download is not available yet. We only list downloads when a legitimate source is available.</p></div></section>
+ <section><h2>Cast</h2><div className="grid">{(credits.cast||[]).slice(0,18).map(p=><Link className="card release" key={p.id} to={'/people/'+p.id} style={{textDecoration:'none'}}>{p.profile_path&&<img className="cover" src={image(p.profile_path,'w342')} alt={p.name} loading="lazy"/>}<div className="release-body"><h3>{p.name}</h3><p className="muted small">{p.character||'Cast member'}</p><span>View performer profile</span></div></Link>)}</div></section>
+ <Link to="/search">Back to search</Link><p className="muted small">TV metadata and images provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p></>;
+}
