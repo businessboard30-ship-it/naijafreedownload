@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import PageHeader from '../components/PageHeader';
 import { useSeo } from '../lib/useSeo';
 import { loadMovieDownloads, type MovieDownloadEntry } from '../lib/movieDownloads';
+import DownloadButton from '../components/DownloadButton';
 
 export default function DownloadCatalogue() {
   useSeo('Movie download catalogue', 'Browse movies with verified download links from TeraBox and other external file hosts.');
@@ -29,7 +30,7 @@ export default function DownloadCatalogue() {
       {filtered.length === 0
         ? <section className="panel"><h2>No download files listed yet</h2><p className="muted">The movie discovery catalogue is available, but no external file links have been registered here yet. Add authorised TeraBox or other HTTPS links to <code>public/data/movie-downloads.json</code> and they will appear here.</p></section>
         : <div className="grid">{filtered.map((item) => <article className="card release" key={item.movieId}>
-          <div className="release-body"><p className="muted small">Movie · {item.year || 'Year not listed'}</p><h3>{item.title}</h3><p className="desc">{item.rightsNote}</p><div className="toolbar" style={{gap:8}}>{item.sources.map((source) => <a className="btn btn-primary" key={source.url} href={source.url} target="_blank" rel="noopener noreferrer">Download · {source.label}</a>)}</div></div>
+          <div className="release-body"><p className="muted small">Movie · {item.year || 'Year not listed'}</p><h3>{item.title}</h3><p className="desc">{item.rightsNote}</p><DownloadButton movieId={item.movieId} /></div>
         </article>)}</div>}
     </>}
     <p className="muted small">Movie metadata is separate from file hosting. TeraBox and other hosts are external services; NaijaFreeDownload does not store the files itself.</p>
