@@ -6,6 +6,7 @@ const ALLOWED = [
   /^discover\/movie$/,
   /^search\/movie$/,
   /^genre\/movie\/list$/,
+  /^configuration\/countries$/,
   /^movie\/[0-9]+$/,
   /^movie\/[0-9]+\/credits$/,
 ];
