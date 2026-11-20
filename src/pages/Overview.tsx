@@ -2,17 +2,19 @@ import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import ReleaseCard from '../components/ReleaseCard';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
-import { CATEGORY_LABELS } from '../lib/catalogue';
 import { useCatalogue } from '../lib/CatalogueContext';
 import { useSeo } from '../lib/useSeo';
-import type { Category } from '../types';
 
-const ROUTES: Record<Category, string> = { music: '/music', movie: '/movies', independent: '/independent', documentary: '/documentaries' };
+const destinations = [
+  {to:'/movies',title:'Explore movies',description:'Browse trending films, worldwide cinema, genres and countries.'},
+  {to:'/music',title:'Discover music',description:'See popular songs and albums by region, or search for an artist.'},
+  {to:'/search',title:'Search everything',description:'Look across movies, music and approved independent releases.'},
+];
 
 export default function Overview() {
-  useSeo('Overview', 'Discover music, films and documentaries from around the world, with clear rights information and links to legally available downloads.');
+  useSeo('Overview', 'Discover worldwide movies, popular music, artists and legally available independent downloads.');
   const { state, reload } = useCatalogue();
-  const head = <PageHeader title="Overview">Discover music, movies and documentaries from around the world. Explore titles across countries, languages, genres and cultures, and find downloads that are public domain, creator-authorised or properly licensed.</PageHeader>;
+  const head = <PageHeader title="Discover entertainment">Explore movies, music and independent releases from around the world. Browse international charts, find films across countries and languages, and check where content is legally available.</PageHeader>;
   if (state.status === 'loading') return <>{head}<LoadingState /></>;
   if (state.status === 'error') return <>{head}<ErrorState message={state.message} onRetry={reload} /></>;
   const rel = state.releases;
@@ -21,26 +23,26 @@ export default function Overview() {
   return (
     <>
       {head}
-      <section aria-labelledby="cats" className="panel">
-        <h2 id="cats">Explore the catalogue</h2>
-        <ul className="stats">
-          {(Object.keys(CATEGORY_LABELS) as Category[]).map((c) => (
-            <li key={c}><Link to={ROUTES[c]}>{CATEGORY_LABELS[c]}</Link><strong>{rel.filter((r) => r.category === c).length}</strong></li>
-          ))}
-        </ul>
+      <section aria-labelledby="discover-heading">
+        <div className="section-head"><h2 id="discover-heading">Start exploring</h2></div>
+        <div className="grid">
+          {destinations.map(item=><Link className="card release" key={item.to} to={item.to} style={{textDecoration:'none',padding:24}}>
+            <div className="release-body"><h3>{item.title}</h3><p className="desc">{item.description}</p><span>Explore</span></div>
+          </Link>)}
+        </div>
       </section>
       <section aria-labelledby="latest">
-        <div className="section-head"><h2 id="latest">Latest releases</h2>{rel.length > 0 && <Link to="/latest">View all</Link>}</div>
+        <div className="section-head"><h2 id="latest">Latest authorised downloads</h2><Link to="/latest">View catalogue</Link></div>
         {rel.length === 0 ? (
-          <EmptyState title="No releases yet" action={<Link className="btn" to="/creators">Submit a release</Link>}>
-            The catalogue is ready. Approved public-domain, creator-authorised and licensed releases from around the world will appear here.
+          <EmptyState title="The direct-download catalogue is being built">
+            Movie and music discovery is already available in the sections above. Direct downloads appear here only after a rights holder or authorised archive provides a verified download link. If you publish content, you can <Link to="/creators">submit a release for review</Link>.
           </EmptyState>
         ) : <div className="grid">{latest.map((r) => <ReleaseCard key={r.id} r={r} />)}</div>}
       </section>
-      <section aria-labelledby="rules" className="panel">
-        <h2 id="rules">What can be listed</h2>
-        <p>Every release needs a named licence or written permission, a link to the licence, and a download hosted by the rights holder or an archive that carries the work legally. Releases missing any of these are not shown.</p>
-        <p><Link to="/creators">Read the submission requirements</Link></p>
+      <section aria-labelledby="how" className="panel">
+        <h2 id="how">How downloads work</h2>
+        <p>We distinguish discovery from downloading. Movie and music catalogues help you find titles; a direct download is enabled only when the file is public domain, creator-authorised or properly licensed.</p>
+        <p><Link to="/copyright">Read our copyright and takedown policy</Link> · <Link to="/creators">Submit a release</Link></p>
       </section>
     </>
   );
