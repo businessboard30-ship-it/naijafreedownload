@@ -10,9 +10,9 @@ import type { Category } from '../types';
 const ROUTES: Record<Category, string> = { music: '/music', movie: '/movies', independent: '/independent', documentary: '/documentaries' };
 
 export default function Overview() {
-  useSeo('Overview', 'Discover and download legally available music, Nollywood films, independent releases and documentaries with clear licences.');
+  useSeo('Overview', 'Discover music, films and documentaries from around the world, with clear rights information and links to legally available downloads.');
   const { state, reload } = useCatalogue();
-  const head = <PageHeader title="Overview">Find music, films and documentaries that are public domain, creator-authorised or openly licensed.</PageHeader>;
+  const head = <PageHeader title="Overview">Discover music, movies and documentaries from around the world. Explore titles across countries, languages, genres and cultures, and find downloads that are public domain, creator-authorised or properly licensed.</PageHeader>;
   if (state.status === 'loading') return <>{head}<LoadingState /></>;
   if (state.status === 'error') return <>{head}<ErrorState message={state.message} onRetry={reload} /></>;
   const rel = state.releases;
@@ -22,7 +22,7 @@ export default function Overview() {
     <>
       {head}
       <section aria-labelledby="cats" className="panel">
-        <h2 id="cats">Catalogue</h2>
+        <h2 id="cats">Explore the catalogue</h2>
         <ul className="stats">
           {(Object.keys(CATEGORY_LABELS) as Category[]).map((c) => (
             <li key={c}><Link to={ROUTES[c]}>{CATEGORY_LABELS[c]}</Link><strong>{rel.filter((r) => r.category === c).length}</strong></li>
@@ -33,7 +33,7 @@ export default function Overview() {
         <div className="section-head"><h2 id="latest">Latest releases</h2>{rel.length > 0 && <Link to="/latest">View all</Link>}</div>
         {rel.length === 0 ? (
           <EmptyState title="No releases yet" action={<Link className="btn" to="/creators">Submit a release</Link>}>
-            The catalogue is ready. Approved public-domain, creator-authorised and licensed releases will appear here.
+            The catalogue is ready. Approved public-domain, creator-authorised and licensed releases from around the world will appear here.
           </EmptyState>
         ) : <div className="grid">{latest.map((r) => <ReleaseCard key={r.id} r={r} />)}</div>}
       </section>
