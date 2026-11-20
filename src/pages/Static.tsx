@@ -8,20 +8,20 @@ const contact = CONTACT_EMAIL
   : <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer">the project issue tracker</a>;
 
 export function Creators() {
-  useSeo('For creators', 'How to submit music, films and documentaries to NaijaFreeDownload, and what licence information is required.');
+  useSeo('For creators', 'How to submit music, films and documentaries from anywhere in the world to NaijaFreeDownload, and what licence information is required.');
   return (
     <>
-      <PageHeader title="For creators">Share your work with a licence that lets people download it legally.</PageHeader>
+      <PageHeader title="For creators">Share your work with a global audience under a licence that lets people download it legally.</PageHeader>
       <section className="panel prose">
         <h2>Submission requirements</h2>
         <ul>
           <li>You own the work or hold written permission from the rights holder.</li>
           <li>The work is public domain, or carries a named licence (for example Creative Commons) with a link to its terms.</li>
           <li>The download is served over HTTPS from a source you control or a recognised archive.</li>
-          <li>You provide title, description, category, release date, file format, file size and cover art.</li>
+          <li>You provide title, description, category, release date, country or region, language, file format, file size and cover art.</li>
         </ul>
         <h2>How to submit</h2>
-        <p>Send the release details and proof of rights through {contact}. Each submission is reviewed before it is added to the catalogue.</p>
+        <p>Send the release details and proof of rights through {contact}. Submissions from creators worldwide are reviewed before they are added to the catalogue.</p>
         <h2>Catalogue entry format</h2>
         <p>Approved releases are added to <code>public/data/releases.json</code>. The field list is documented in the project README.</p>
       </section>
@@ -30,13 +30,14 @@ export function Creators() {
 }
 
 export function About() {
-  useSeo('About', 'About NaijaFreeDownload, a catalogue of legally available music, Nollywood films and documentaries.');
+  useSeo('About', 'About NaijaFreeDownload, a worldwide discovery catalogue for legally available music, films and documentaries.');
   return (
     <>
-      <PageHeader title="About">A catalogue of music and films you are allowed to download.</PageHeader>
+      <PageHeader title="About">A worldwide destination to discover music, movies and documentaries.</PageHeader>
       <section className="panel prose">
-        <p>NaijaFreeDownload helps people find Nigerian and African music, Nollywood films, independent releases and documentaries that are legally free to download. Every entry shows its licence and source.</p>
-        <p>The site does not host copyrighted media without permission and does not link to unauthorised copies. Creators who want to publish can read <Link to="/creators">the submission requirements</Link>.</p>
+        <p>NaijaFreeDownload is open to entertainment from every country and region. Discover Hollywood, Nollywood, Bollywood, European cinema, Korean and Japanese films, African cinema, independent productions, documentaries and music from artists worldwide.</p>
+        <p>Country, language and genre should help visitors explore the full international catalogue; no country or region is the platform's limit. Every downloadable entry must be public domain, creator-authorised or properly licensed, with its rights and source clearly identified.</p>
+        <p>The site does not host copyrighted media without permission or link to unauthorised copies. Creators worldwide can read <Link to="/creators">the submission requirements</Link>.</p>
       </section>
     </>
   );
