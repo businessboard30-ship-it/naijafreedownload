@@ -1,0 +1,30 @@
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
+import ReleaseCard from '../components/ReleaseCard';
+import { useCatalogue } from '../lib/CatalogueContext';
+import { useSeo } from '../lib/useSeo';
+type Movie={id:number;title:string;overview:string;poster_path:string|null;release_date:string;vote_average:number};
+type Music={trackId?:number;artistId?:number;trackName?:string;artistName?:string;collectionName?:string;artworkUrl100?:string;trackViewUrl?:string;collectionViewUrl?:string;artistViewUrl?:string;};
+const poster=(p:string|null)=>p?'https://image.tmdb.org/t/p/w342'+p:'';
+export default function GlobalSearch(){
+ useSeo('Search worldwide','Search movies, music, artists, albums and independent releases worldwide.');
+ const [params,setParams]=useSearchParams();const q=params.get('q')||'';const [input,setInput]=useState(q);
+ const [movies,setMovies]=useState<Movie[]>([]);const [music,setMusic]=useState<Music[]>([]);const [error,setError]=useState('');
+ const {state}=useCatalogue();
+ useEffect(()=>{setInput(q);if(!q.trim()){setMovies([]);setMusic([]);return;}const ctrl=new AbortController();setError('');
+ const movieReq=fetch('/api/tmdb/search/movie?'+new URLSearchParams({query:q,page:'1'}),{signal:ctrl.signal}).then(r=>r.ok?r.json():Promise.reject(new Error('Movie search is unavailable.'))).then(d=>setMovies(d.results||[]));
+ const musicReq=fetch('/api/music?'+new URLSearchParams({term:q,entity:'musicTrack',country:'US',limit:'20'}),{signal:ctrl.signal}).then(r=>r.ok?r.json():Promise.reject(new Error('Music search is unavailable.'))).then(d=>setMusic(d.results||[]));
+ Promise.allSettled([movieReq,musicReq]).then(results=>{if(results.every(x=>x.status==='rejected'))setError('Search services are temporarily unavailable. Please try again.');});
+ return()=>ctrl.abort();
+ },[q]);
+ const local=state.status==='ready'?state.releases.filter(r=>(r.title+' '+r.creator+' '+r.description).toLowerCase().includes(q.toLowerCase())).slice(0,20):[];
+ return <><PageHeader title="Search">Search across worldwide movies, music, artists, albums and independent releases.</PageHeader>
+ <form className="toolbar" role="search" onSubmit={e=>{e.preventDefault();setParams(input.trim()?{q:input.trim()}:{});}}><div className="field grow"><label htmlFor="global-q">What are you looking for?</label><input id="global-q" type="search" value={input} onChange={e=>setInput(e.target.value)} placeholder="Try a title, song, artist or actor"/></div><button className="btn btn-primary" type="submit">Search</button></form>
+ {!q&&<p className="muted">Enter a search term to find matching music, movies and releases.</p>}{error&&<p className="panel" role="alert">{error}</p>}
+ {q&&<><h2>Movies</h2>{movies.length?<div className="grid">{movies.map(m=><Link className="card release" key={m.id} to={'/movies/'+m.id} style={{textDecoration:'none'}}>{m.poster_path?<img className="cover" src={poster(m.poster_path)} alt="" loading="lazy"/>:<div className="cover cover-empty">Film</div>}<div className="release-body"><h3>{m.title}</h3><p className="muted small">{m.release_date?.slice(0,4)} · ★ {m.vote_average?.toFixed(1)}</p><p className="desc">{m.overview}</p></div></Link>)}</div>:<p className="muted">No movie matches yet.</p>}
+ <h2>Music</h2>{music.length?<div className="grid">{music.map((m,i)=><article className="card release" key={m.trackId||i}>{m.artworkUrl100?<img className="cover" src={m.artworkUrl100.replace('100x100','400x400')} alt="" loading="lazy"/>:<div className="cover cover-empty">♪</div>}<div className="release-body"><h3>{m.trackName||m.collectionName||m.artistName}</h3><p>{m.artistName}</p>{(m.trackViewUrl||m.collectionViewUrl||m.artistViewUrl)&&<a href={m.trackViewUrl||m.collectionViewUrl||m.artistViewUrl} target="_blank" rel="noopener noreferrer">Open official music page</a>}</div></article>)}</div>:<p className="muted">No music matches yet.</p>}
+ <h2>Independent releases</h2>{local.length?<div className="grid">{local.map(r=><ReleaseCard key={r.id} r={r}/>)}</div>:<p className="muted">No matching approved independent releases.</p>}</>}
+ <p className="muted small">Search combines movie metadata, music listings and the site’s approved independent catalogue. Download links are shown only when an authorised source is available.</p>
+ </>;
+}
