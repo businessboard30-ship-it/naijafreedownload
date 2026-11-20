@@ -15,7 +15,7 @@ export default function Topbar({ menuOpen, onMenu }: { menuOpen: boolean; onMenu
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
       </button>
       <Link to="/" className="brand">
-        <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="6" fill="#c2500a" /><path d="M9 23V9h3l8 10V9h3v14h-3l-8-10v10z" fill="#fff" /></svg>
+        <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="6" fill="#ff5e1f" /><path d="M9 23V9h3l8 10V9h3v14h-3l-8-10v10z" fill="#fff" /></svg>
         <span>{SITE_NAME}</span>
       </Link>
       <form className="top-search" role="search" onSubmit={submit}>
