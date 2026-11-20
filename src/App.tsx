@@ -8,7 +8,7 @@ import AnimePage, { AnimeDetail, AnimeCharacterDetail } from './pages/Anime';
 import Music from './pages/Music';
 import GlobalSearch from './pages/GlobalSearch';
 import DownloadCatalogue from './pages/DownloadCatalogue';
-import { About, Contact, Copyright, Creators, NotFound } from './pages/Static';
+import { About, Contact, Copyright, Creators, NotFound, PrivacyPolicy, Terms } from './pages/Static';
 
 export default function App() {
   return (
@@ -34,6 +34,8 @@ export default function App() {
           <Route path="creators" element={<Creators />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<Terms />} />
           <Route path="copyright" element={<Copyright />} />
           <Route path="*" element={<NotFound />} />
         </Route>
