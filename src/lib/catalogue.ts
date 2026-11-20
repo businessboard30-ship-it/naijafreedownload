@@ -5,6 +5,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   movie: 'Movies & Nollywood',
   independent: 'Independent creators',
   documentary: 'Documentaries',
+  adult: '18+ / Adult',
 };
 export type SortKey = 'newest' | 'oldest' | 'title' | 'size';
 export const SORT_LABELS: Record<SortKey, string> = {
@@ -49,7 +50,7 @@ export function facets(items: Release[]) {
 export function queryReleases(items: Release[], q: Query): Result {
   const needle = q.q.trim().toLowerCase();
   let out = items.filter((r) =>
-    (!q.category || r.category === q.category) &&
+    (q.category ? r.category === q.category : r.category !== 'adult') &&
     (!q.format || r.format === q.format) &&
     (!q.licence || r.licence.name === q.licence) &&
     (!needle || [r.title, r.creator, r.description].some((s) => s.toLowerCase().includes(needle))));
