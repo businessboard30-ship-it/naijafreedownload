@@ -1,7 +1,7 @@
 export const SITE_NAME = 'NaijaFreeDownload';
 export const REPO_URL = 'https://github.com/businessboard30-ship-it/naijafreedownload';
 export const ISSUES_URL = `${REPO_URL}/issues`;
-export const CONTACT_EMAIL: string = import.meta.env.VITE_CONTACT_EMAIL ?? '';
+export const CONTACT_EMAIL: string = import.meta.env.VITE_CONTACT_EMAIL || 'businessboard30@gmail.com';
 export const CATALOGUE_URL: string = import.meta.env.VITE_CATALOGUE_URL || '/data/releases.json';
 
 export interface NavItem { to: string; label: string; end?: boolean }
@@ -21,6 +21,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
   { group: 'Resources', items: [
     { to: '/creators', label: 'For creators' },
     { to: '/about', label: 'About' },
+    { to: '/contact', label: 'Contact us' },
     { to: '/copyright', label: 'Copyright and takedown' },
   ] },
 ];
