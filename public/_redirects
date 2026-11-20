@@ -1,1 +1,6 @@
+# Existing files are served normally. Missing build assets must never fall
+# through to the SPA HTML document, which browsers may try to execute as JS.
+/assets/*  /404.html  404
+
+# Client-side routes
 /*  /index.html  200
