@@ -28,8 +28,7 @@ const DYNAMIC_TITLES: [RegExp, string, string][] = [
 ];
 
 function links(): string {
-  // The age-restricted section is deliberately not linked in the crawlable fallback.
-  const items = NAV.flatMap((g) => g.items).filter((i) => i.to !== '/adult').map((i) => `<li><a href="${escapeHtml(i.to)}">${escapeHtml(i.label)}</a></li>`).join('');
+  const items = NAV.flatMap((g) => g.items).map((i) => `<li><a href="${escapeHtml(i.to)}">${escapeHtml(i.label)}</a></li>`).join('');
   return `<nav aria-label="Main"><ul>${items}</ul></nav>`;
 }
 
