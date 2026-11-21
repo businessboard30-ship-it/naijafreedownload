@@ -43,34 +43,29 @@ Copy `.env.example` to `.env` for local use. Every `VITE_*` variable is bundled 
 | `VITE_SITE_URL` | Public site URL for canonical metadata |
 | `VITE_CATALOGUE_URL` | Optional alternative catalogue URL (default `/data/releases.json`) |
 | `VITE_CONTACT_EMAIL` | Optional public contact address for creators and takedowns |
+| `VITE_ADS_ENABLED`, `VITE_ADSENSE_CLIENT`, `VITE_ADSENSE_SLOT_DETAIL` | AdSense (blank = no ads); see `docs/ADSENSE.md` |
 
-## Adding releases
+## Content verification and review
 
-Add objects to `public/data/releases.json` only after rights are verified. Every entry must include the licence name, HTTPS licence URL and HTTPS authorised download URL. Never fabricate download availability or file sizes.
+Nothing is public unless it passes every rule in `src/lib/verification.ts`: title, category, creator, original source, official https URL, a rights basis (public domain, licensed, official artist/label, or verified authorised distributor), `sourceStatus: verified`, `reviewStatus: approved`, reviewer name and date. A download hosted on a different website than the official source also needs `authorisationEvidenceUrl`. Rows that fail are quarantined (ignored by the site and rejected by CI).
 
-## Movie download catalogue
+Review workflow (nothing is fetched or scraped; a human decides):
 
-Movie discovery uses TMDB for metadata; download files are hosted externally and are never copied into the site repository. To list a movie file, add an entry to `public/data/movie-downloads.json`:
-
-```json
-{
-  "movies": [
-    {
-      "movieId": 12345,
-      "title": "Example title",
-      "year": "2025",
-      "rightsVerified": true,
-      "rightsNote": "Public-domain release / written permission from the rights holder.",
-      "sources": [
-        { "label": "TeraBox", "url": "https://your-authorised-file-host.example/file" },
-        { "label": "Archive", "url": "https://your-authorised-file-host.example/another-file" }
-      ]
-    }
-  ]
-}
+```bash
+# 1. Put new submissions in catalogue/submissions.json (pending, with reviewStatus "pending")
+npm run catalogue -- pending                       # what blocks each one
+npm run catalogue -- approve <id> --by "Name" --source-checked --rights-checked
+npm run catalogue -- reject <id> --reason "..."
+npm run catalogue -- quarantine <id> --reason "..."
+npm run catalogue -- takedown <id> --reason "..."  # removes from public data, logs in catalogue/takedowns.json
+npm run catalogue:validate                         # fails if any public row is unverified
 ```
 
-Use the movie's TMDB numeric ID for `movieId`. Only add HTTPS links that the rights holder has authorised or that are covered by the stated public-domain/licence status. Set `rightsVerified` to `true` only after checking the rights. Entries without verified rights and valid HTTPS sources are not shown. Movie listing cards and detail pages show a Download action when a verified source exists; otherwise the button responds that the file has not been added. The `/downloads` page lists only movies with verified links.
+Releases use `public/data/releases.json`; movie download sources use `public/data/movie-downloads.json` (movie id = TMDB id; ids as `movie:<id>` in the CLI). Both are validated by `npm test` and during the build.
+
+## AdSense
+
+Ads are off by default. See `docs/ADSENSE.md`.
 
 ## Deployment
 

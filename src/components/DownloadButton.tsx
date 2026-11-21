@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { RIGHTS_BASIS_LABELS, hostOf } from '../lib/verification';
 import { loadMovieDownloads, type MovieDownloadEntry, type MovieDownloadSource } from '../lib/movieDownloads';
-
-const AD_SLOTS = ['Sponsor placement 1', 'Sponsor placement 2', 'Sponsor placement 3'];
 
 export default function DownloadButton({ movieId, detail = false }: { movieId: number; detail?: boolean }) {
   const [entry, setEntry] = useState<MovieDownloadEntry | null>(null);
   const [checked, setChecked] = useState(false);
-  const [message, setMessage] = useState('');
   const [selectedSource, setSelectedSource] = useState<MovieDownloadSource | null>(null);
 
   useEffect(() => {
@@ -24,34 +22,28 @@ export default function DownloadButton({ movieId, detail = false }: { movieId: n
     setSelectedSource(null);
   }
 
-  if (!detail) return <Link className="btn btn-download" to={`/movies/${movieId}`}>Download</Link>;
+  if (!detail) return <Link className="btn" to={`/movies/${movieId}`}>View details</Link>;
   if (!checked) return <span className="muted small">Checking download availability…</span>;
-  if (!entry || !entry.sources.length) return <>
-    <button className="btn btn-download" type="button" onClick={() => setMessage('An authorised download link has not been added yet. Please check back soon.')}>Download</button>
-    {message && <p className="muted small" role="status" style={{marginTop:8}}>{message}</p>}
-  </>;
+  if (!entry || !entry.sources.length) return <p className="muted" role="status">No verified download is available for this title. You can still read about it here.</p>;
 
   return <>
     <div className="download-sources" aria-label={`Download ${entry.title}`}>
-      {entry.sources.map((source) => <button className="btn btn-download" type="button" key={source.url} onClick={() => setSelectedSource(source)}>Download · {source.label}</button>)}
+      {entry.sources.map((source) => <button className="btn btn-download" type="button" key={source.url} onClick={() => setSelectedSource(source)}>Go to {source.label}</button>)}
     </div>
+    <dl className="meta" style={{marginTop:12}}>
+      <div><dt>Rights</dt><dd>{RIGHTS_BASIS_LABELS[entry.verification.rightsBasis]}: {entry.rightsNote}</dd></div>
+      <div><dt>Official source</dt><dd><a href={entry.verification.officialUrl} target="_blank" rel="noopener noreferrer">{hostOf(entry.verification.officialUrl)}</a></dd></div>
+      <div><dt>Reviewed</dt><dd>{entry.verification.reviewedAt}</dd></div>
+    </dl>
     {selectedSource && <div className="download-dialog-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedSource(null); }}>
       <section className="download-dialog" role="dialog" aria-modal="true" aria-labelledby="download-dialog-title">
         <button className="download-dialog-close" type="button" aria-label="Close" onClick={() => setSelectedSource(null)}>×</button>
-        <p className="muted small">DOWNLOAD</p>
+        <p className="muted small">External download</p>
         <h2 id="download-dialog-title">Continue to your download</h2>
-        <p className="muted">Your selected file is hosted on {selectedSource.label}. Sponsor placements are shown below when advertising is configured.</p>
-        <div className="download-ad-grid">
-          {AD_SLOTS.map((slot) => <div className="download-ad-slot" key={slot}>
-            <span className="download-ad-label">ADVERTISEMENT</span>
-            <strong>{slot}</strong>
-            <span className="muted small">Ad space available</span>
-          </div>)}
-        </div>
-        <p className="muted small">Ad placements are optional and will not require visitors to click advertisements to access a download.</p>
+        <p className="muted">This file is provided by {selectedSource.label}. The link below opens the source in a new tab. Its availability and terms are set by that provider.</p>
         <div className="download-dialog-actions">
           <button className="btn" type="button" onClick={() => setSelectedSource(null)}>Back</button>
-          <button className="btn btn-download" type="button" onClick={continueToDownload}>Continue to {selectedSource.label}</button>
+          <button className="btn btn-download" type="button" onClick={continueToDownload}>Open {selectedSource.label}</button>
         </div>
       </section>
     </div>}

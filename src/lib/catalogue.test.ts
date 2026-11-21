@@ -8,7 +8,12 @@ const mk = (i: number, over: Partial<Release> = {}): Release => ({
   category: i % 2 ? 'music' : 'movie', creator: `Creator ${i}`, releaseDate: `2025-01-${String((i % 28) + 1).padStart(2, '0')}`,
   format: i % 2 ? 'MP3' : 'MP4', fileSizeMB: i * 10,
   licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/' },
-  source: { name: 'Fixture' }, downloadUrl: 'https://example.com/file', ...over,
+  source: { name: 'Fixture' }, downloadUrl: 'https://example.com/file',
+  verification: {
+    rightsBasis: 'licensed', officialUrl: 'https://example.com/about', sourceStatus: 'verified',
+    reviewStatus: 'approved', reviewedBy: 'Test reviewer', reviewedAt: '2026-01-01',
+  },
+  ...over,
 });
 const items = Array.from({ length: 30 }, (_, i) => mk(i + 1));
 const base = { q: '', format: '', licence: '', sort: 'newest' as const, page: 1 };

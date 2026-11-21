@@ -7,12 +7,12 @@ import ReleaseCard from '../components/ReleaseCard';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { CATEGORY_LABELS, SORT_LABELS, facets, queryReleases, type SortKey } from '../lib/catalogue';
 import { useCatalogue } from '../lib/CatalogueContext';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo } from '../lib/useSeo';
 
 interface Props { title: string; description: string; category?: Category; latest?: boolean; showSearch?: boolean; showCategory?: boolean }
 
 export default function CatalogueView({ title, description, category, latest, showSearch, showCategory }: Props) {
-  useSeo(title, description);
+  usePageSeo();
   const { state, reload } = useCatalogue();
   const [params, setParams] = useSearchParams();
   const get = (k: string) => params.get(k) ?? '';

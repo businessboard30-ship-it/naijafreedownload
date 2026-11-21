@@ -7,6 +7,7 @@ import { TMDBMovies, TMDBMovieDetail, TMDBDocumentaries, PersonDetail, MovieChar
 import AnimePage, { AnimeDetail, AnimeCharacterDetail } from './pages/Anime';
 import Music from './pages/Music';
 import NigeriaMovies from './pages/NigeriaMovies';
+import MusicDetail from './pages/MusicDetail';
 import GlobalSearch from './pages/GlobalSearch';
 import DownloadCatalogue from './pages/DownloadCatalogue';
 import AdultContent from './pages/AdultContent';
@@ -19,6 +20,9 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<Overview />} />
           <Route path="music" element={<Music />} />
+          <Route path="music/song/:id" element={<MusicDetail kind="song" />} />
+          <Route path="music/album/:id" element={<MusicDetail kind="album" />} />
+          <Route path="music/artist/:id" element={<MusicDetail kind="artist" />} />
           <Route path="movies" element={<TMDBMovies />} />
           <Route path="nigeria-movies" element={<NigeriaMovies />} />
           <Route path="seasonal" element={<SeasonalMovies />} />

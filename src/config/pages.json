@@ -1,0 +1,132 @@
+{
+  "origin": "https://naijafreedownload.pages.dev",
+  "siteName": "NaijaFreeDownload",
+  "pages": [
+    {
+      "path": "/",
+      "title": "Discover movies, anime and music worldwide",
+      "description": "Explore movies, anime, music and documentaries from around the world, with clear information about which titles have a verified, authorised download.",
+      "index": true,
+      "heading": "Find your next favourite"
+    },
+    {
+      "path": "/music",
+      "title": "Music: charts, songs, albums and artists",
+      "description": "Browse popular songs and albums by country, search artists and tracks, and find official listening pages. Downloads are shown only when authorised.",
+      "index": true,
+      "heading": "Music"
+    },
+    {
+      "path": "/movies",
+      "title": "Movies: trending, popular and top-rated films",
+      "description": "Discover trending, popular and top-rated films from cinema industries worldwide, with synopses, cast and verified download availability.",
+      "index": true,
+      "heading": "Movies"
+    },
+    {
+      "path": "/nigeria-movies",
+      "title": "Nigeria movies: Nollywood and Nigerian cinema",
+      "description": "Discover Nollywood and other Nigerian films with synopses, cast and information on official places to watch.",
+      "index": true,
+      "heading": "Nigeria movies"
+    },
+    {
+      "path": "/seasonal",
+      "title": "Seasonal movies for every occasion",
+      "description": "Find films for Christmas, Halloween, Valentine's Day, summer, winter, New Year and other seasonal occasions from around the world.",
+      "index": true,
+      "heading": "Seasonal movies"
+    },
+    {
+      "path": "/anime",
+      "title": "Anime: airing now, upcoming and popular series",
+      "description": "Discover currently airing anime, upcoming seasons, popular series and anime films, with synopses, studios and release information.",
+      "index": true,
+      "heading": "Anime"
+    },
+    {
+      "path": "/documentaries",
+      "title": "Documentaries from around the world",
+      "description": "Explore documentary films on nature, history, science, music, culture and real-life stories from many countries.",
+      "index": true,
+      "heading": "Documentaries"
+    },
+    {
+      "path": "/independent",
+      "title": "Independent creators",
+      "description": "Releases published directly by independent artists and filmmakers who have authorised free distribution.",
+      "index": false,
+      "heading": "Independent creators"
+    },
+    {
+      "path": "/latest",
+      "title": "Latest verified releases",
+      "description": "The most recently added releases that have passed our rights and source verification.",
+      "index": false,
+      "heading": "Latest releases"
+    },
+    {
+      "path": "/downloads",
+      "title": "Verified movie download catalogue",
+      "description": "Movies with a download source that has passed rights and source verification by a reviewer.",
+      "index": false,
+      "heading": "Download catalogue"
+    },
+    {
+      "path": "/search",
+      "title": "Search movies, anime, music and artists",
+      "description": "Search movies, TV series, anime, music, artists and albums in one place.",
+      "index": false,
+      "heading": "Search"
+    },
+    {
+      "path": "/creators",
+      "title": "Submit your work: requirements for creators",
+      "description": "How artists, filmmakers and rights holders can submit work for listing, and the rights and source evidence we require before anything is published.",
+      "index": true,
+      "heading": "For creators"
+    },
+    {
+      "path": "/about",
+      "title": "About NaijaFreeDownload",
+      "description": "What NaijaFreeDownload is, how the catalogue works, where information comes from and how we decide what may be offered for download.",
+      "index": true,
+      "heading": "About"
+    },
+    {
+      "path": "/contact",
+      "title": "Contact us",
+      "description": "Contact NaijaFreeDownload about general enquiries, corrections, creator submissions, privacy requests and copyright concerns.",
+      "index": true,
+      "heading": "Contact us"
+    },
+    {
+      "path": "/privacy",
+      "title": "Privacy Policy",
+      "description": "How NaijaFreeDownload handles information, cookies, analytics and third-party advertising, and the choices available to you.",
+      "index": true,
+      "heading": "Privacy Policy"
+    },
+    {
+      "path": "/terms",
+      "title": "Terms and Conditions",
+      "description": "The terms for using NaijaFreeDownload, its catalogue, external links and submission features.",
+      "index": true,
+      "heading": "Terms and Conditions"
+    },
+    {
+      "path": "/copyright",
+      "title": "Copyright and takedown policy",
+      "description": "Our content verification rules, how to report a listing you believe infringes your rights, and how we review and act on complaints.",
+      "index": true,
+      "heading": "Copyright and takedown"
+    },
+    {
+      "path": "/adult",
+      "title": "18+ catalogue (age-restricted)",
+      "description": "A separate age-restricted catalogue. Not indexed by search engines.",
+      "index": false,
+      "heading": "18+ content"
+    }
+  ]
+}

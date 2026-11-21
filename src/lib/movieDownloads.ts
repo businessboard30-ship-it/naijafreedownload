@@ -1,33 +1,41 @@
+import { classify, isHttpsUrl, verificationProblems, type Verification } from './verification';
+
 export interface MovieDownloadSource { label: string; url: string }
 export interface MovieDownloadEntry {
   movieId: number;
   title: string;
   year?: string;
-  rightsVerified: boolean;
+  /** Plain-language statement of why this file may be distributed. */
   rightsNote: string;
   sources: MovieDownloadSource[];
+  verification: Verification;
 }
+
+/** Every reason a movie-download row cannot be published. Empty means verified and approved. */
+export function movieDownloadProblems(raw: unknown): string[] {
+  if (!raw || typeof raw !== 'object') return ['not an object'];
+  const e = raw as Record<string, any>;
+  const p: string[] = [];
+  if (!Number.isInteger(e.movieId)) p.push('movieId (TMDB id) must be an integer');
+  if (typeof e.title !== 'string' || !e.title.trim()) p.push('title is required');
+  if (typeof e.rightsNote !== 'string' || !e.rightsNote.trim()) p.push('rightsNote is required');
+  const sources: any[] = Array.isArray(e.sources) ? e.sources : [];
+  if (sources.length === 0) p.push('at least one source is required');
+  for (const s of sources) {
+    if (!s || typeof s.label !== 'string' || !s.label.trim() || !isHttpsUrl(s.url)) p.push('each source needs a label and an https url');
+  }
+  p.push(...verificationProblems(e.verification, sources.map((s) => s?.url)));
+  return p;
+}
+
+export const sanitiseMovieDownloads = (rows: unknown) => classify<MovieDownloadEntry>(rows, movieDownloadProblems).approved;
+
 let cache: Promise<MovieDownloadEntry[]> | undefined;
-function validUrl(value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  try { return new URL(value).protocol === 'https:'; } catch { return false; }
-}
 export function loadMovieDownloads(): Promise<MovieDownloadEntry[]> {
   if (!cache) {
     cache = fetch('/data/movie-downloads.json', { headers: { Accept: 'application/json' } })
       .then((response) => { if (!response.ok) throw new Error('Download catalogue unavailable.'); return response.json(); })
-      .then((data: { movies?: unknown[] }) => (Array.isArray(data.movies) ? data.movies : [])
-        .filter((item): item is MovieDownloadEntry => {
-          if (!item || typeof item !== 'object') return false;
-          const entry = item as Record<string, unknown>;
-          return Number.isInteger(entry.movieId) && typeof entry.title === 'string'
-            && entry.rightsVerified === true && typeof entry.rightsNote === 'string'
-            && Array.isArray(entry.sources) && entry.sources.some((source) =>
-              !!source && typeof source === 'object' && typeof (source as Record<string, unknown>).label === 'string'
-              && validUrl((source as Record<string, unknown>).url));
-        })
-        .map((entry) => ({ ...entry, sources: entry.sources.filter((source) =>
-          !!source && typeof source.label === 'string' && validUrl(source.url)) } as MovieDownloadEntry)))
+      .then((data: { movies?: unknown }) => sanitiseMovieDownloads(data?.movies))
       .catch((error) => { cache = undefined; throw error; });
   }
   return cache;

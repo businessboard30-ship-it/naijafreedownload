@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo } from '../lib/useSeo';
 
 type Performer = { name: string; slug: string };
 type Tag = { name: string; slug: string };
@@ -29,7 +29,7 @@ const duration = (seconds?: number) => seconds && seconds > 0
   : 'Runtime not listed';
 
 export default function AdultContent() {
-  useSeo('18+ adult catalogue', 'A separate age-restricted discovery catalogue for adult studio movies and releases.');
+  usePageSeo({ noindex: true });
   const [allowed, setAllowed] = useState(false);
   const [checked, setChecked] = useState(false);
   const [kind, setKind] = useState<'scene' | 'movie' | 'vr'>('scene');

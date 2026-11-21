@@ -1,4 +1,5 @@
 import type { Category, Release } from '../types';
+import { classify, isHttpsUrl, verificationProblems } from './verification';
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   music: 'Music',
@@ -19,27 +20,39 @@ export interface Query {
 }
 export interface Result { items: Release[]; total: number; page: number; pageCount: number }
 
-function isHttps(u: unknown): boolean {
-  if (typeof u !== 'string') return false;
-  try { return new URL(u).protocol === 'https:'; } catch { return false; }
-}
 const str = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
 
-/** A release is only published if it has a licence and https download link. */
-export function isPublishable(r: unknown): r is Release {
-  if (!r || typeof r !== 'object') return false;
+/** Every reason a catalogue row cannot be published. Empty means verified and approved. */
+export function releaseProblems(r: unknown): string[] {
+  if (!r || typeof r !== 'object') return ['not an object'];
   const x = r as Record<string, any>;
-  return str(x.id) && str(x.title) && str(x.creator) && str(x.format) && str(x.description)
-    && x.category in CATEGORY_LABELS
-    && !Number.isNaN(Date.parse(x.releaseDate))
-    && typeof x.fileSizeMB === 'number' && x.fileSizeMB >= 0
-    && !!x.licence && str(x.licence.name) && isHttps(x.licence.url)
-    && !!x.source && str(x.source.name)
-    && isHttps(x.downloadUrl)
-    && (x.cover === undefined || isHttps(x.cover) || (typeof x.cover === 'string' && x.cover.startsWith('/')));
+  const p: string[] = [];
+  if (!str(x.id)) p.push('id is required');
+  if (!str(x.title)) p.push('title is required');
+  if (!str(x.creator)) p.push('artist, creator or distributor (creator) is required');
+  if (!str(x.format)) p.push('format is required');
+  if (!str(x.description)) p.push('description is required');
+  if (typeof x.category !== 'string' || !(x.category in CATEGORY_LABELS)) p.push('category must be one of: ' + Object.keys(CATEGORY_LABELS).join(', '));
+  if (Number.isNaN(Date.parse(x.releaseDate))) p.push('releaseDate must be a valid date');
+  if (typeof x.fileSizeMB !== 'number' || x.fileSizeMB < 0) p.push('fileSizeMB must be a non-negative number');
+  if (!x.licence || !str(x.licence.name) || !isHttpsUrl(x.licence.url)) p.push('licence needs a name and an https URL');
+  if (!x.source || !str(x.source.name)) p.push('original content source name is required');
+  if (x.source && x.source.url !== undefined && !isHttpsUrl(x.source.url)) p.push('source.url must be https when given');
+  if (!(x.cover === undefined || isHttpsUrl(x.cover) || (typeof x.cover === 'string' && x.cover.startsWith('/')))) p.push('cover must be https or a site path');
+  p.push(...verificationProblems(x.verification, [x.downloadUrl]));
+  return p;
+}
+
+/** A release is only published if it passes every verification rule. */
+export function isPublishable(r: unknown): r is Release {
+  return releaseProblems(r).length === 0;
 }
 export function sanitise(raw: unknown): Release[] {
-  return Array.isArray(raw) ? raw.filter(isPublishable) : [];
+  return classify<Release>(raw, releaseProblems).approved;
+}
+/** Rows kept out of public listings, with the reasons (used by the review CLI and tests). */
+export function quarantine(raw: unknown) {
+  return classify<Release>(raw, releaseProblems).quarantined;
 }
 
 export function facets(items: Release[]) {

@@ -3,8 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 import ReleaseCard from '../components/ReleaseCard';
 import { useCatalogue } from '../lib/CatalogueContext';
-import { useSeo } from '../lib/useSeo';
-
+import { usePageSeo } from '../lib/useSeo';
 type Movie={id:number;title:string;overview:string;poster_path:string|null;release_date:string;vote_average:number};
 type TV={id:number;name:string;overview:string;poster_path:string|null;first_air_date:string;vote_average:number};
 type Person={id:number;name:string;known_for_department?:string;profile_path:string|null;known_for?:{id:number;media_type?:string;title?:string;name?:string}[]};
@@ -18,7 +17,7 @@ const poster=(p:string|null)=>p?'https://image.tmdb.org/t/p/w342'+p:'';
 const profile=(p:string|null)=>p?'https://image.tmdb.org/t/p/w185'+p:'';
 
 export default function GlobalSearch(){
- useSeo('Search worldwide','Search movies, TV series, actors, actresses, directors, filmmakers, anime, music and independent releases worldwide.');
+ usePageSeo();
  const [params,setParams]=useSearchParams();const q=params.get('q')||'';const [input,setInput]=useState(q);
  const [movies,setMovies]=useState<Movie[]>([]);const [tv,setTv]=useState<TV[]>([]);const [people,setPeople]=useState<Person[]>([]);const [anime,setAnime]=useState<Anime[]>([]);const [characters,setCharacters]=useState<AnimeCharacter[]>([]);const [music,setMusic]=useState<Music[]>([]);const [artists,setArtists]=useState<MusicArtist[]>([]);const [personRole,setPersonRole]=useState<PersonRole>('all');const [loading,setLoading]=useState(false);const [error,setError]=useState('');
  const {state}=useCatalogue();

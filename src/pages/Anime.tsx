@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo, useSeo } from '../lib/useSeo';
 
 type Anime = { mal_id:number; url:string; title:string; title_english?:string|null; title_japanese?:string|null; synopsis?:string|null; images?:{jpg?:{large_image_url?:string;image_url?:string}}; score?:number|null; year?:number|null; season?:string|null; episodes?:number|null; status?:string; type?:string; genres?:{name:string}[]; aired?:{from?:string|null;string?:string}; studios?:{name:string}[] };
 type Payload = { data:Anime[]; pagination?:{last_visible_page:number;has_next_page:boolean} };
 const art = (a:Anime) => a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
 
 export default function AnimePage() {
-  useSeo('Anime worldwide','Discover currently airing anime, upcoming seasons, popular series and anime films. Search titles and explore new releases.');
+  usePageSeo();
   const [tab,setTab]=useState('seasons/now'); const [query,setQuery]=useState(''); const [submitted,setSubmitted]=useState('');
   const [data,setData]=useState<Payload|null>(null); const [page,setPage]=useState(1); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
   useEffect(()=>{

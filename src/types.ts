@@ -1,3 +1,5 @@
+import type { Verification } from './lib/verification';
+
 export type Category = 'music' | 'movie' | 'independent' | 'documentary' | 'adult';
 
 export interface Release {
@@ -16,4 +18,6 @@ export interface Release {
   source: { name: string; url?: string };
   /** Must be an https URL authorised by the rights holder or licence. */
   downloadUrl: string;
+  /** Rights, source and reviewer sign-off. Without an approved block the item is never public. */
+  verification: Verification;
 }

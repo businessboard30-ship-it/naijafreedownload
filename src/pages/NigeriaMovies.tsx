@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo } from '../lib/useSeo';
 
 type Movie = { id:number; title:string; overview:string; poster_path:string|null; release_date:string; vote_average:number };
 type Result = { results:Movie[]; total_results:number; total_pages:number };
@@ -11,7 +11,7 @@ export default function NigeriaMovies() {
   const [data,setData]=useState<Result|null>(null);
   const [page,setPage]=useState(1);
   const [error,setError]=useState('');
-  useSeo('Nigerian movies & Nollywood','Discover Nigerian cinema and Nollywood films, explore movie details, official trailers and streaming availability in Nigeria.');
+  usePageSeo();
   useEffect(()=>{
     const ctrl=new AbortController();
     setData(null);setError('');

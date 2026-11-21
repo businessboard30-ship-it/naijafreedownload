@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo, useSeo } from '../lib/useSeo';
 import DownloadButton from '../components/DownloadButton';
+import AdSlot from '../components/AdSlot';
+import { movieSummary } from '../lib/editorial';
 
 type Movie = { id: number; title: string; overview: string; poster_path: string | null; backdrop_path: string | null; release_date: string; vote_average: number; genre_ids?: number[]; original_language?: string; origin_country?: string[]; runtime?: number; genres?: {id:number;name:string}[] };
 type Results = { results: Movie[]; total_pages: number; total_results: number };
@@ -25,7 +27,7 @@ export function SeasonalMovies() {
   const [category, setCategory] = useState(SEASONAL_CATEGORIES[0]);
   const [data, setData] = useState<Results | null>(null);
   const [error, setError] = useState('');
-  useSeo('Seasonal movies', 'Explore movies for Christmas, Halloween, Valentine’s Day, summer, winter, New Year and other seasonal occasions.');
+  usePageSeo();
   useEffect(() => {
     const ctrl = new AbortController();
     setData(null);
@@ -56,7 +58,7 @@ export function SeasonalMovies() {
 }
 
 export function TMDBMovies() {
-  useSeo('Movies worldwide', 'Discover trending, popular and top-rated films from countries and cinema industries around the world.');
+  usePageSeo();
   const [tab,setTab] = useState('trending/movie/week');
   const [query,setQuery] = useState('');
   const [country,setCountry] = useState('');
@@ -104,54 +106,25 @@ export function TMDBMovieDetail() {
   const [videos,setVideos] = useState<{key:string;name:string;site:string;type:string;official?:boolean}[]>([]);
   const [providers,setProviders] = useState<{link?:string;flatrate?:{provider_id:number;provider_name:string;logo_path:string}[];rent?:{provider_id:number;provider_name:string;logo_path:string}[];buy?:{provider_id:number;provider_name:string;logo_path:string}[]}>({});
   const [error,setError] = useState('');
-  useSeo(movie ? `${movie.title} (${movie.release_date?.slice(0,4) || 'Movie'}) — details & download availability` : 'Movie details', movie ? `Explore ${movie.title}, its synopsis, cast, release information and legitimate download availability on NaijaFreeDownload.` : 'Movie information, cast and legitimate download availability from the worldwide movie catalogue.');
   useEffect(()=>{const ctrl=new AbortController();Promise.all([fetch('/api/tmdb/movie/'+id,{signal:ctrl.signal}),fetch('/api/tmdb/movie/'+id+'/credits',{signal:ctrl.signal}),fetch('/api/tmdb/movie/'+id+'/videos',{signal:ctrl.signal}),fetch('/api/tmdb/movie/'+id+'/watch/providers',{signal:ctrl.signal})]).then(async ([a,b,v,p])=>{if(!a.ok||!b.ok)throw new Error('Could not load movie details.');const [m,cr,vi,pr]=await Promise.all([a.json(),b.json(),v.ok?v.json():Promise.resolve({results:[]}),p.ok?p.json():Promise.resolve({results:{}})]);return [m,cr,vi,pr] as const;}).then(([m,cr,vi,pr])=>{setMovie(m);setCredits(cr);setVideos(vi.results??[]);setProviders(pr.results?.NG??{});}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>ctrl.abort();},[id]);
-
-  useEffect(() => {
-    if (!movie) return;
-    const year = movie.release_date?.slice(0,4);
-    const title = `${movie.title}${year ? ` (${year})` : ''} — movie details | NaijaFreeDownload`;
-    const description = `Find ${movie.title}${year ? ` (${year})` : ''} movie details, synopsis, cast, release information and legal free download availability. Check whether an authorised download is available on NaijaFreeDownload.`.slice(0,300);
-    const keywords = [movie.title, `${movie.title} movie`, `${movie.title} free download`, `${movie.title} movie download`, `download ${movie.title}`, `${movie.title} watch online`, `${movie.title} cast`, `${movie.title} ${year || ''}`, 'free movie downloads', 'legal movie downloads', 'worldwide movies'].filter(Boolean).join(', ');
-    document.title = title;
-    const meta = (selector: string, attr: string, key: string, value: string) => {
-      let el = document.head.querySelector<HTMLMetaElement>(selector);
-      if (!el) { el = document.createElement('meta'); el.setAttribute(attr,key); document.head.appendChild(el); }
-      el.content = value;
-    };
-    meta('meta[name="description"]','name','description',description);
-    meta('meta[name="keywords"]','name','keywords',keywords);
-    meta('meta[property="og:title"]','property','og:title',title);
-    meta('meta[property="og:description"]','property','og:description',description);
-    meta('meta[property="og:type"]','property','og:type','video.movie');
-    if (movie.poster_path) meta('meta[property="og:image"]','property','og:image',image(movie.poster_path));
-    meta('meta[name="twitter:card"]','name','twitter:card','summary_large_image');
-    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
-    canonical.href = window.location.origin + window.location.pathname;
-    let script = document.head.querySelector<HTMLScriptElement>('#movie-jsonld');
-    if (!script) { script = document.createElement('script'); script.id = 'movie-jsonld'; script.type = 'application/ld+json'; document.head.appendChild(script); }
-    script.textContent = JSON.stringify({
-      '@context':'https://schema.org',
-      '@type':'Movie',
-      name:movie.title,
-      description:movie.overview || description,
-      datePublished:movie.release_date || undefined,
-      image:movie.poster_path ? image(movie.poster_path) : undefined,
-      inLanguage:movie.original_language || undefined,
-      genre:movie.genres?.map(g=>g.name),
-      url:canonical.href,
-      aggregateRating: movie.vote_average > 0 ? {'@type':'AggregateRating',ratingValue:movie.vote_average,bestRating:10} : undefined
-    });
-    return () => { script?.remove(); };
-  },[movie]);
+  const year = movie?.release_date?.slice(0,4);
+  const director = credits.crew?.find(c=>c.job==='Director')?.name;
+  const seoTitle = movie ? `${movie.title}${year ? ` (${year})` : ''}: cast, synopsis and download availability` : 'Movie details';
+  const seoDesc = movie ? (movie.overview ? movie.overview.slice(0,155).replace(/\s+\S*$/,'') + '…' : `Details, cast and release information for ${movie.title}${year ? ` (${year})` : ''}, with a clear note on whether an authorised download is available.`) : 'Movie details, cast and download availability.';
+  useSeo(seoTitle, seoDesc, {
+    ogType: 'video.movie', noindex: !movie, image: movie?.poster_path ? image(movie.poster_path) : undefined,
+    jsonLd: movie ? { '@context':'https://schema.org', '@type':'Movie', name: movie.title, description: movie.overview || undefined,
+      datePublished: movie.release_date || undefined, image: movie.poster_path ? image(movie.poster_path) : undefined,
+      inLanguage: movie.original_language || undefined, genre: movie.genres?.map(g=>g.name),
+      director: director ? { '@type':'Person', name: director } : undefined } : undefined,
+  });
 
   if(error)return <><PageHeader title="Movie details">{error}</PageHeader><Link to="/movies">Back to movies</Link></>;
   if(!movie)return <p className="muted">Loading movie details…</p>;
-  const director=credits.crew?.find(c=>c.job==='Director')?.name;
-  return <><PageHeader title={movie.title}>{movie.release_date?.slice(0,4)} · {movie.genres?.map(g=>g.name).join(', ')} · ★ {movie.vote_average?.toFixed(1)}</PageHeader>
+  const summary = movieSummary({ title: movie.title, year, genres: movie.genres?.map(g=>g.name), language: movie.original_language, countries: movie.origin_country, runtime: movie.runtime, director, cast: credits.cast?.slice(0,4).map(c=>c.name) });
+  return <><PageHeader title={movie.title}>{[year, movie.genres?.map(g=>g.name).join(', ')].filter(Boolean).join(' · ')}</PageHeader>
     {movie.backdrop_path&&<img src={image(movie.backdrop_path,'w1280')} alt="" style={{width:'100%',borderRadius:12,maxHeight:420,objectFit:'cover'}}/>}
-    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>Overview</h2><p>{movie.overview || 'No synopsis available.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download</h3><DownloadButton movieId={movie.id} detail /><p className="muted small">Files are linked from external hosts such as TeraBox. A download appears only after a verified, authorised file link has been added. TMDB provides movie metadata and artwork, not downloadable movie files.</p></div></section>
+    <section className="panel prose" style={{display:'flex',gap:24,flexWrap:'wrap'}}>{movie.poster_path&&<img src={image(movie.poster_path)} alt={movie.title+' poster'} style={{width:190,maxWidth:'40%',height:'fit-content',borderRadius:8}}/>}<div style={{flex:'1 1 260px'}}><h2>About this film</h2><p>{summary}</p><h2>Synopsis</h2><p>{movie.overview || 'No synopsis is available from our metadata provider.'}</p><p><strong>Release:</strong> {movie.release_date || 'Unknown'}</p><p><strong>Original language:</strong> {movie.original_language?.toUpperCase() || 'Unknown'}</p><p><strong>Countries:</strong> {movie.origin_country?.join(', ') || 'Not listed'}</p><p><strong>Runtime:</strong> {movie.runtime ? movie.runtime+' minutes' : 'Not listed'}</p><p><strong>Director:</strong> {director || 'Not listed'}</p><h3>Download</h3><DownloadButton movieId={movie.id} detail /><p className="muted small">A download is offered only when a reviewer has verified the rights and the source for that file. Otherwise this page is information only. TMDB provides metadata and artwork, not movie files. See our <Link to="/copyright">verification and takedown policy</Link>.</p></div></section>
     <section className="panel prose">
       <h2>Official trailers</h2>
       {videos.filter(v=>v.site==='YouTube'&&v.type==='Trailer').length ? <div className="grid">{videos.filter(v=>v.site==='YouTube'&&v.type==='Trailer').sort((a,b)=>Number(!!b.official)-Number(!!a.official)).slice(0,2).map(v=><div key={v.key}><h3>{v.name}</h3><div style={{position:'relative',paddingTop:'56.25%'}}><iframe title={v.name||movie.title+' trailer'} src={'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(v.key)} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen style={{position:'absolute',inset:0,width:'100%',height:'100%',border:0,borderRadius:8}} /></div><p><a href={'https://www.youtube.com/watch?v='+encodeURIComponent(v.key)} target="_blank" rel="noopener noreferrer">Open on YouTube</a></p></div>)}</div> : <p className="muted">No YouTube trailer is listed for this title yet.</p>}
@@ -162,13 +135,13 @@ export function TMDBMovieDetail() {
       </> : <p className="muted">No Nigerian streaming-provider listing is currently available for this title. Check the official services directly for current availability.</p>}
       <p className="muted small">Availability is based on catalogue data for Nigeria and may change. Provider names and links are suggestions, not a guarantee that a title is included in a subscription.</p>
     </section>
-    <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><div className="card release" key={person.id}><Link to={'/people/'+person.id} style={{textDecoration:'none'}}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">Performer · {person.character}</p><span>View performer and filmography</span></div></Link><div className="release-body" style={{paddingTop:0}}><Link to={'/movie-character/'+movie.id+'/'+person.id}>Explore character: {person.character||'Role details'}</Link></div></div>)}</div></section><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    <section><h2>Cast</h2><div className="grid">{(credits.cast??[]).slice(0,12).map(person=><div className="card release" key={person.id}><Link to={'/people/'+person.id} style={{textDecoration:'none'}}>{person.profile_path&&<img className="cover" src={image(person.profile_path,'w342')} alt={person.name} loading="lazy"/>}<div className="release-body"><h3>{person.name}</h3><p className="muted small">Performer · {person.character}</p><span>View performer and filmography</span></div></Link><div className="release-body" style={{paddingTop:0}}><Link to={'/movie-character/'+movie.id+'/'+person.id}>Explore character: {person.character||'Role details'}</Link></div></div>)}</div></section><AdSlot /><Link to="/movies">Back to movies</Link><p className="muted small">This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </>;
 }
 
 
 export function TMDBDocumentaries() {
-  useSeo('Documentaries worldwide', 'Discover documentary films from around the world, including nature, history, science, music, culture and true stories.');
+  usePageSeo();
   const [data,setData] = useState<Results | null>(null);
   const [page,setPage] = useState(1);
   const [sort,setSort] = useState('popularity.desc');

@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Validate catalogue (fails if any published item is unverified)
+        run: npm run catalogue:validate
+
       - name: Run tests
         run: npm test
 
@@ -36,6 +42,10 @@ jobs:
         run: npm run build
         env:
           VITE_SITE_URL: https://naijafreedownload.pages.dev
+          # Blank until Google approves the site; see docs/ADSENSE.md
+          VITE_ADS_ENABLED: ${{ vars.VITE_ADS_ENABLED }}
+          VITE_ADSENSE_CLIENT: ${{ vars.VITE_ADSENSE_CLIENT }}
+          VITE_ADSENSE_SLOT_DETAIL: ${{ vars.VITE_ADSENSE_SLOT_DETAIL }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

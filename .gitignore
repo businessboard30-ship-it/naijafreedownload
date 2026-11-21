@@ -6,3 +6,6 @@ dist
 .wrangler
 *.log
 .DS_Store
+
+# generated only when VITE_ADSENSE_CLIENT is set
+public/ads.txt

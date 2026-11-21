@@ -3,7 +3,7 @@ import PageHeader from '../components/PageHeader';
 import ReleaseCard from '../components/ReleaseCard';
 import { EmptyState, ErrorState, LoadingState } from '../components/States';
 import { useCatalogue } from '../lib/CatalogueContext';
-import { useSeo } from '../lib/useSeo';
+import { usePageSeo } from '../lib/useSeo';
 
 const destinations = [
   {to:'/movies',title:'Explore movies',description:'Browse trending films, worldwide cinema, genres and countries.'},
@@ -14,7 +14,7 @@ const destinations = [
 ];
 
 export default function Overview() {
-  useSeo('Discover movies, anime and music worldwide', 'Explore movies from around the world, new anime releases, popular music, documentaries, artists and independent films. Search titles, discover cast and character profiles, and find authorised downloads.');
+  usePageSeo();
   const { state, reload } = useCatalogue();
   const head = <PageHeader title="Find your next favourite">Discover movies, anime, music and real stories from around the world. Explore new releases, international charts, cast and character profiles, and films across languages and countries. When an authorised download is available, we make that clear.</PageHeader>;
   if (state.status === 'loading') return <>{head}<LoadingState /></>;
