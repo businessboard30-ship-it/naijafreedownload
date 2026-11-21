@@ -32,7 +32,7 @@ export default function AdultContent() {
   useSeo('18+ adult catalogue', 'A separate age-restricted discovery catalogue for adult studio movies and releases.');
   const [allowed, setAllowed] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [kind, setKind] = useState<'movie' | 'scene'>('movie');
+  const [kind, setKind] = useState<'scene' | 'movie' | 'vr'>('scene');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [feed, setFeed] = useState<Feed | null>(null);
@@ -60,7 +60,7 @@ export default function AdultContent() {
     fetch('/api/perverzija/scenes?' + params.toString(), { signal: controller.signal })
       .then(async response => {
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || 'The adult catalogue is temporarily unavailable.');
+        if (!response.ok) throw new Error(payload.error?.message || payload.error || 'The adult catalogue is temporarily unavailable.');
         return payload as Feed;
       })
       .then(payload => setFeed({
@@ -104,8 +104,9 @@ export default function AdultContent() {
         <p><strong>Previews and downloads:</strong> this feed provides metadata and official studio links, not licensed preview-video files or download rights. We will not embed scraped clips or link to unauthorised copies.</p>
       </section>
       <div className="toolbar" role="group" aria-label="Adult catalogue type">
-        <button className={kind === 'movie' ? 'btn btn-primary' : 'btn'} onClick={() => { setKind('movie'); setPage(1); }}>Full movies</button>
         <button className={kind === 'scene' ? 'btn btn-primary' : 'btn'} onClick={() => { setKind('scene'); setPage(1); }}>Scenes & releases</button>
+        <button className={kind === 'movie' ? 'btn btn-primary' : 'btn'} onClick={() => { setKind('movie'); setPage(1); }}>Full movies</button>
+        <button className={kind === 'vr' ? 'btn btn-primary' : 'btn'} onClick={() => { setKind('vr'); setPage(1); }}>VR</button>
       </div>
       <div className="toolbar" style={{alignItems:'end'}}>
         <div className="field grow">
@@ -125,7 +126,7 @@ export default function AdultContent() {
             return <article className="card release" key={item.id}>
               {cover ? <img className="cover" src={cover} alt={item.title + ' cover'} loading="lazy" referrerPolicy="no-referrer" /> : <div className="cover cover-empty">Artwork unavailable</div>}
               <div className="release-body">
-                <p className="muted small">18+ · {item.kind === 'movie' ? 'Full movie' : 'Scene'} · Intensity: Not rated</p>
+                <p className="muted small">18+ · {item.kind === 'movie' ? 'Full movie' : item.kind === 'vr' ? 'VR' : 'Scene'} · Intensity: Not rated</p>
                 <h3>{item.scene_title || item.title}</h3>
                 <p className="muted small">{item.release_date || 'Release date unavailable'} · {duration(item.duration)}</p>
                 {item.studio?.name && <p><strong>Studio:</strong> {item.studio.name}</p>}
@@ -144,7 +145,7 @@ export default function AdultContent() {
           <span className="muted small">Page {page} of {feed.meta?.pages ?? 1}</span>
           <button className="btn" disabled={page >= (feed.meta?.pages ?? 1)} onClick={() => setPage(value => value + 1)}>Next</button>
         </div>
-      </> : !loading ? <div className="state"><h2>No matching titles</h2><p>No records were returned for this collection. Try another search or switch between full movies and scenes.</p></div> : null)}
+      </> : !loading ? <div className="state"><h2>No titles in this collection yet</h2><p>The provider returned no records for this content type or search. Try Scenes & releases, clear your search, or check back later. The other sections remain separate.</p></div> : null)}
       <p className="muted small">Catalogue metadata: <a href="https://db.perverzija.com" target="_blank" rel="noopener noreferrer">Perverzija DB</a>. Metadata is provided as-is. Titles, images and trademarks belong to their respective owners. NaijaFreeDownload does not host adult videos or provide unauthorised copies.</p>
     </>
   );
