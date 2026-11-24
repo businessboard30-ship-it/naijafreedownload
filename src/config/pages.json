@@ -120,6 +120,13 @@
       "description": "Our content verification rules, how to report a listing you believe infringes your rights, and how we review and act on complaints.",
       "index": true,
       "heading": "Copyright and takedown"
+    },
+    {
+      "path": "/adult",
+      "title": "18+ catalogue (age-restricted)",
+      "description": "A separate age-restricted catalogue. Not indexed by search engines.",
+      "index": false,
+      "heading": "18+ content"
     }
   ]
 }

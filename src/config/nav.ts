@@ -11,6 +11,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     { to: '/anime', label: 'Anime' },
     { to: '/independent', label: 'Independent creators' },
     { to: '/documentaries', label: 'Documentaries' },
+    { to: '/adult', label: '18+ content' },
     { to: '/latest', label: 'Latest releases' },
     { to: '/search', label: 'Search' },
   ] },
