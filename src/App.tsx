@@ -10,6 +10,7 @@ import NigeriaMovies from './pages/NigeriaMovies';
 import MusicDetail from './pages/MusicDetail';
 import GlobalSearch from './pages/GlobalSearch';
 import DownloadCatalogue from './pages/DownloadCatalogue';
+import AdultContent from './pages/AdultContent';
 import { About, Contact, Copyright, Creators, NotFound, PrivacyPolicy, Terms } from './pages/Static';
 
 export default function App() {
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="nigeria-movies" element={<NigeriaMovies />} />
           <Route path="seasonal" element={<SeasonalMovies />} />
           <Route path="downloads" element={<DownloadCatalogue />} />
+          <Route path="adult" element={<AdultContent />} />
           <Route path="movies/:id" element={<TMDBMovieDetail />} />
           <Route path="tv/:id" element={<TMDBTVDetail />} />
           <Route path="movie-character/:movieId/:personId" element={<MovieCharacterDetail />} />
